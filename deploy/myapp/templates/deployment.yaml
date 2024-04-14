@@ -20,27 +20,50 @@ spec:
           image: {{ .Values.image }}
           imagePullPolicy: Always
           env:
-            - name: ASPNETCORE_URLS
-              value: http://*:5000
-            - name: SqlServerConn__Server
-              value: {{ .Values.sql_server.host }}
-            - name: SqlServerConn__Database
-              value: {{ .Values.sql_server.database }}
-            - name: SqlServerForwardSpammer__ParallelExecutions
-              value: {{ .Values.myapp.parallel_executions | quote }}
-            - name: SqlServerForwardSpammer__RetriesCount
-              value: {{ .Values.myapp.retries_count | quote }}
-            - name: TestName
-              value: {{ .Values.testName }}
-            - name: NginxAddress
-              value: {{ .Values.nginx_address }}
-            - name: Logging__LogLevel__Default
-              value: {{ .Values.default_loglevel }}
+          - name: ASPNETCORE_URLS
+            value: http://*:5000
+          - name: SqlServerConn__Server
+            value: {{ .Values.sql_server.host }}
+          - name: SqlServerConn__Database
+            value: {{ .Values.sql_server.database }}
+          - name: SqlServerForwardSpammer__ParallelExecutions
+            value: {{ .Values.myapp.parallel_executions | quote }}
+          - name: SqlServerForwardSpammer__RetriesCount
+            value: {{ .Values.myapp.retries_count | quote }}
+          - name: TestName
+            value: {{ .Values.testName }}
+          - name: NginxAddress
+            value: {{ .Values.nginx_address }}
+          - name: Logging__LogLevel__Default
+            value: {{ .Values.default_loglevel }}
+          - name: DOTNET_DiagnosticPorts
+            value: /diag/dotnet-monitor.sock
           ports:
-            - containerPort: 5000
-          {{- if .Values.resourcesEnabled }}
+          - containerPort: 5000
+          volumeMounts:
+          - mountPath: /diag
+            name: diagvol
           resources:
-            limits:
+            requests:
               cpu: {{ .Values.cpu }}
               memory: {{ .Values.memory }}
-          {{- end }}
+        - name: dotnet-monitor
+          args:
+          - collect
+          - --no-auth
+          image: mcr.microsoft.com/dotnet/monitor:8
+          env:
+          - name: DOTNETMONITOR_DiagnosticPort__ConnectionMode
+            value: Listen
+          - name: DOTNETMONITOR_Storage__DefaultSharedPath
+            value: /diag
+          - name: DOTNETMONITOR_Urls
+            value: http://*:52323
+          ports:
+          - containerPort: 52323
+          volumeMounts:
+          - mountPath: /diag
+            name: diagvol
+      volumes:
+      - name: diagvol
+        emptyDir: {}

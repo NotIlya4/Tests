@@ -15,3 +15,6 @@ spec:
     - name: metrics
       port: 8889
       targetPort: 8889
+    - name: dotnet-monitor
+      port: 52323
+      targetPort: 52323

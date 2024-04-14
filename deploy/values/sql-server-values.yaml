@@ -1,6 +1,6 @@
 password: P@ssword!
 port: 1433
 resourcesEnabled: false
-cpu: 8
-memory: 10Gi
+cpu: 2
+memory: 2Gi
 disk: 50Gi

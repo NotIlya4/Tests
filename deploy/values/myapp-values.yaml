@@ -9,7 +9,7 @@ myapp:
   retries_count: 15000
 testName: testy2
 resourcesEnabled: false
-cpu: 8
+cpu: 3
 memory: 3Gi
 nginx_address: http://nginx.nginx:3001
 default_loglevel: Warning

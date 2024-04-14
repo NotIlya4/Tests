@@ -35,7 +35,7 @@ microk8s-lite:
 
 port-forward:
   kubectl port-forward svc/monitoring-grafana -n monitoring 3000:3000 & \
-  kubectl port-forward svc/myapp -n myapp 5001:5001 & \
+  kubectl port-forward svc/myapp -n myapp 5001:5001 52323:52323 & \
   kubectl port-forward svc/postgres -n monitoring-postgres 31331:31331 & \
   kubectl port-forward svc/sql-server -n sql-server 1433:1433 & \
   kubectl port-forward svc/monitoring-kube-prometheus-prometheus -n monitoring 9090:9090
