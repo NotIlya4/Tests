@@ -1,0 +1,53 @@
+prometheus:
+  service:
+    type: LoadBalancer
+  prometheusSpec:
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes: [ "ReadWriteOnce" ]
+          resources:
+            requests:
+              storage: 30Gi
+    resources:
+      limits:
+        cpu: "500m"
+        memory: "1000Mi"
+
+prometheusOperator:
+  deployment:
+    resources:
+      limits:
+        cpu: "100m"
+        memory: "200Mi"
+
+grafana:
+  grafana.ini:
+    database:
+      host: postgres.monitoring-postgres.svc.cluster.local:31331
+      user: postgres
+      password: pgpass
+      type: postgres
+      name: grafana
+  service:
+    type: LoadBalancer
+    port: 3000
+  assertNoLeakedSecrets: false
+  resources:
+    limits:
+      cpu: "100m"
+      memory: "1000Mi"
+
+alertmanager:
+  alertmanagerSpec:
+    storage:
+      volumeClaimTemplate:
+        spec:
+          accessModes: [ "ReadWriteOnce" ]
+          resources:
+            requests:
+              storage: 10Gi
+    resources:
+      limits:
+        cpu: "100m"
+        memory: "200Mi"

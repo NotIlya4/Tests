@@ -1,0 +1,6 @@
+set shell := ["cmd.exe", "/c"]
+
+ansible:
+    python build_inventory.py
+    wsl.exe -- export ANSIBLE_HOST_KEY_CHECKING=False; /root/.local/bin/ansible-playbook playbook.yaml -i inventory.ini
+

@@ -1,0 +1,26 @@
+- name: Install packages using snap
+  hosts: nodes
+  become: true
+
+  tasks:
+    - name: Install sysstat using snap
+      apt:
+        name: sysstat
+        state: present
+
+    - name: Install fio using snap
+      apt:
+        name: fio
+        state: present
+
+    - name: Install microk8s using snap
+      snap:
+        name: microk8s
+        state: present
+        classic: true
+    
+    - name: Enable cert-manager addon in microk8s
+      command: microk8s enable cert-manager
+
+    - name: Enable hostpath-storage addon in microk8s
+      command: microk8s enable hostpath-storage

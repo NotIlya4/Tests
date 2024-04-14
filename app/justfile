@@ -1,0 +1,3 @@
+update:
+	docker build . --tag notilya4/db-tests.spammer:latest
+	docker push notilya4/db-tests.spammer:latest 

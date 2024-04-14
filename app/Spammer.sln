@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service", "Service\Service.csproj", "{0FFD7317-EE89-4908-949B-F08B6A7D75A8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spammer", "Spammer\Spammer.csproj", "{80C66739-2510-4B18-9D7B-D76DBD64E735}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0FFD7317-EE89-4908-949B-F08B6A7D75A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FFD7317-EE89-4908-949B-F08B6A7D75A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FFD7317-EE89-4908-949B-F08B6A7D75A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FFD7317-EE89-4908-949B-F08B6A7D75A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80C66739-2510-4B18-9D7B-D76DBD64E735}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80C66739-2510-4B18-9D7B-D76DBD64E735}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80C66739-2510-4B18-9D7B-D76DBD64E735}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80C66739-2510-4B18-9D7B-D76DBD64E735}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

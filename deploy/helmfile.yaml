@@ -1,0 +1,101 @@
+repositories:
+  - name: prometheus
+    url: https://prometheus-community.github.io/helm-charts
+  - name: bitnami
+    url: https://charts.bitnami.com/bitnami
+  - name: open-telemetry
+    url: https://open-telemetry.github.io/opentelemetry-helm-charts
+  - name: jetstack
+    url: https://charts.jetstack.io
+  - name: prometheus-process-exporter-charts
+    url: https://raw.githubusercontent.com/mumoshu/prometheus-process-exporter/master/docs
+
+releases:
+  - name: sql-server
+    namespace: sql-server
+    chart: ./sql-server
+    installed: true
+    values:
+    - ./values/sql-server-values.yaml
+
+  - name: monitoring-postgres
+    namespace: monitoring-postgres
+    chart: bitnami/postgresql
+    timeout: 999
+    installed: true
+    values:
+    - ./values/monitoring-postgres-values.yaml
+
+  - name: monitoring
+    namespace: monitoring
+    chart: prometheus/kube-prometheus-stack
+    disableValidationOnInstall: true
+    timeout: 999
+    installed: true
+    values:
+    - ./values/monitoring-values.yaml
+  
+  - name: cert-manager
+    namespace: cert-manager
+    chart: jetstack/cert-manager
+    disableValidationOnInstall: true
+    installed: false
+    values:
+    - installCRDs: true
+
+  - name: open-telemetry
+    namespace: open-telemetry
+    chart: open-telemetry/opentelemetry-operator
+    disableValidationOnInstall: true
+    wait: true
+    installed: true
+    needs:
+    - cert-manager/cert-manager
+    values:
+    - admissionWebhooks:
+        certManager:
+          enabled: true
+
+  - name: myapp
+    namespace: myapp
+    chart: ./myapp
+    disableValidationOnInstall: true
+    needs:
+    - open-telemetry/open-telemetry
+    installed: true
+    values:
+    - ./values/myapp-values.yaml
+  
+  - name: nginx
+    namespace: nginx
+    chart: bitnami/nginx
+    installed: true
+    values:
+    - service:
+        ports:
+          http: 3001
+      readinessProbe:
+        enabled: false
+      livenessProbe:
+        enabled: false
+      serverBlock: |-
+        access_log off;
+      resourcesPreset: none
+  
+  - name: process-exporter
+    namespace: monitoring
+    chart: prometheus-process-exporter-charts/prometheus-process-exporter
+    values:
+    - rbac:
+        create: false
+      serviceMonitor:
+        enabled: true
+        labels:
+          release: monitoring
+      groups:
+      - comm:
+        - sqlservr
+      - comm:
+        - dotnet
+      - comm:
+        - nginx

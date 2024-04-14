@@ -1,0 +1,15 @@
+replicas: 1
+port: 5001
+image: notilya4/db-tests.spammer:latest
+sql_server:
+  host: sql-server.sql-server,1433
+  database: Test10
+myapp:
+  parallel_executions: 20
+  retries_count: 15000
+testName: testy2
+resourcesEnabled: false
+cpu: 8
+memory: 3Gi
+nginx_address: http://nginx.nginx:3001
+default_loglevel: Warning

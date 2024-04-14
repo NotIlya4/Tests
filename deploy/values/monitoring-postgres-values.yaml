@@ -1,0 +1,14 @@
+fullnameOverride: postgres
+
+primary:
+  service:
+    type: LoadBalancer
+    ports:
+      postgresql: 31331
+  initdb:
+    scripts:
+      grafana.sql: |
+        CREATE DATABASE grafana;
+
+auth:
+  postgresPassword: pgpass

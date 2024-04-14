@@ -1,0 +1,56 @@
+minikube:
+  minikube start \
+      --cpus max \
+      --memory max \
+      --disk-size 100gb \
+      --bootstrapper=kubeadm \
+      --container-runtime=containerd \
+      --extra-config=kubelet.authentication-token-webhook=true \
+      --extra-config=kubelet.authorization-mode=Webhook \
+      --extra-config=scheduler.bind-address=0.0.0.0 \
+      --extra-config=controller-manager.bind-address=0.0.0.0 \
+      --extra-config=etcd.listen-metrics-urls=http://0.0.0.0:2381 \
+      --extra-config=kubelet.housekeeping-interval=10s
+
+microk8s:
+  microk8s install \
+    --cpu 10 \
+    --mem 10 \
+    --disk 100 \
+    -y
+  microk8s config > C:\Users\IlyaKrupcov\.kube\config
+  microk8s enable cert-manager
+  microk8s enable hostpath-storage
+
+microk8s-config:
+  microk8s config > C:\Users\IlyaKrupcov\.kube\config
+  microk8s enable cert-manager
+  microk8s enable hostpath-storage
+
+microk8s-lite:
+  microk8s install -y
+  microk8s config > C:\Users\IlyaKrupcov\.kube\config
+  microk8s enable cert-manager
+  microk8s enable hostpath-storage
+
+port-forward:
+  kubectl port-forward svc/monitoring-grafana -n monitoring 3000:3000 & \
+  kubectl port-forward svc/myapp -n myapp 5001:5001 & \
+  kubectl port-forward svc/postgres -n monitoring-postgres 31331:31331 & \
+  kubectl port-forward svc/sql-server -n sql-server 1433:1433 & \
+  kubectl port-forward svc/monitoring-kube-prometheus-prometheus -n monitoring 9090:9090
+
+delete-myapp:
+  helm uninstall myapp -n myapp
+
+update-myapp:
+  just -f ../app/justfile update
+  helmfile apply
+
+@grafana-backup:
+  PGPASSWORD="pgpass" pg_dump --port=31331 --username=postgres --dbname=grafana --no-password --file=grafana_dump.sql
+  echo ✅ Dump successful!
+
+@grafana-restore:
+  PGPASSWORD="pgpass" psql --port=31331 --dbname=grafana -U postgres < grafana_dump.sql
+  echo ✅ Restore successful!
