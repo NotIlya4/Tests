@@ -70,16 +70,12 @@ public abstract class SpammerBase(SpammerOptions options)
 
     private async Task DecorateWithMetrics(Func<RunnerExecutionContext, Task> action, RunnerExecutionContext context)
     {
-        SpinWaiter.SpinForBegin(TimeSpan.FromMilliseconds(5));
-
         var stopwatch = Stopwatch.StartNew();
 
         await action(context);
         
         stopwatch.Stop();
         _metrics?.RecordExecutionProcessed(stopwatch.Elapsed, context);
-        
-        SpinWaiter.SpinForEnd(TimeSpan.FromMilliseconds(5));
     }
     
     protected virtual Task OnRunnerCreating(
