@@ -85,6 +85,7 @@ releases:
   - name: process-exporter
     namespace: monitoring
     chart: prometheus-process-exporter-charts/prometheus-process-exporter
+    installed: false
     values:
     - rbac:
         create: false

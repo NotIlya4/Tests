@@ -3,17 +3,27 @@
   become: true
 
   tasks:
-    - name: Install sysstat using snap
+    - name: Install sysstat
       apt:
         name: sysstat
         state: present
 
-    - name: Install fio using snap
+    - name: Install fio
       apt:
         name: fio
         state: present
+    
+    - name: Copy fio test
+      ansible.builtin.copy:
+        src: ./test.fio
+        dest: /test/
+    
+    - name: Install fio
+      apt:
+        name: stress
+        state: present
 
-    - name: Install microk8s using snap
+    - name: Install microk8s
       snap:
         name: microk8s
         state: present

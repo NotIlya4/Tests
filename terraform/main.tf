@@ -30,8 +30,18 @@ data "yandex_compute_image" "ubuntu" {
   family = "ubuntu-2204-lts-oslogin"
 }
 
+resource "yandex_vpc_address" "address" {
+  name = "test1-address"
+
+  external_ipv4_address {
+    zone_id = var.zone
+  }
+}
+
 resource "yandex_compute_instance" "instance" {
-  name = "${var.name}-instance"
+  name                      = "${var.name}-instance"
+  allow_stopping_for_update = true
+  hostname = var.name
 
   resources {
     cores  = var.instance_resources.cores
@@ -48,8 +58,9 @@ resource "yandex_compute_instance" "instance" {
   }
 
   network_interface {
-    subnet_id = yandex_vpc_subnet.subnet.id
-    nat       = true
+    subnet_id      = yandex_vpc_subnet.subnet.id
+    nat            = true
+    nat_ip_address = yandex_vpc_address.address.external_ipv4_address[0].address
   }
 
   scheduling_policy {
@@ -59,11 +70,6 @@ resource "yandex_compute_instance" "instance" {
   metadata = {
     ssh-keys = "ubuntu:${tls_private_key.ssh.public_key_openssh}"
   }
-}
-
-resource "local_file" "instance_stdout" {
-  filename = "./output/instance.json"
-  content  = jsonencode(yandex_compute_instance.instance)
 }
 
 resource "local_file" "nat_ip_address" {

@@ -1,0 +1,7 @@
+[test1]
+direct=1
+size=10GB
+runtime=120
+fsync=1
+rw=randwrite
+ioengine=sync
