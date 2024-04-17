@@ -18,19 +18,38 @@
         src: ./test.fio
         dest: /test/
     
-    - name: Install fio
+    - name: Install perf1
+      apt:
+        name: linux-tools-generic
+        state: present
+    
+    - name: Install perf2
+      apt:
+        name: linux-tools-common
+        state: present
+    
+    - name: Install blktrace
+      apt:
+        name: blktrace
+        state: present
+    
+    - name: Install stress
       apt:
         name: stress
         state: present
 
     - name: Install microk8s
+      register: microk8s
       snap:
         name: microk8s
         state: present
         classic: true
+      when: false
     
     - name: Enable cert-manager addon in microk8s
       command: microk8s enable cert-manager
+      when: microk8s is not skipped
 
     - name: Enable hostpath-storage addon in microk8s
       command: microk8s enable hostpath-storage
+      when: microk8s is not skipped
