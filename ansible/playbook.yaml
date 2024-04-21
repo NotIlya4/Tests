@@ -3,6 +3,12 @@
   become: true
 
   tasks:
+    - name: Update and upgrade apt packages
+      become: true
+      apt:
+        upgrade: yes
+        update_cache: yes
+
     - name: Install sysstat
       apt:
         name: sysstat
@@ -16,7 +22,7 @@
     - name: Copy fio test
       ansible.builtin.copy:
         src: ./test.fio
-        dest: /test/
+        dest: ~/test/
     
     - name: Install perf1
       apt:
@@ -37,6 +43,11 @@
       apt:
         name: stress
         state: present
+    
+    - name: Install cgtools
+      apt:
+        name: cgroup-tools
+        state: present
 
     - name: Install microk8s
       register: microk8s
@@ -44,7 +55,7 @@
         name: microk8s
         state: present
         classic: true
-      when: false
+      when: true
     
     - name: Enable cert-manager addon in microk8s
       command: microk8s enable cert-manager

@@ -1,7 +1,8 @@
 [test1]
 direct=1
-size=10GB
-runtime=120
+size=50GB
+runtime=600
 fdatasync=1
 rw=randwrite
 ioengine=sync
+blocksize=4KB

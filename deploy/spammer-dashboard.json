@@ -480,8 +480,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -577,8 +576,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -674,8 +672,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -766,12 +763,10 @@
         "current": {
           "selected": true,
           "text": [
-            "50threads4",
-            "50threadsEntitiy"
+            "All"
           ],
           "value": [
-            "50threads4",
-            "50threadsEntitiy"
+            "$__all"
           ]
         },
         "datasource": {
@@ -799,13 +794,13 @@
     ]
   },
   "time": {
-    "from": "2024-04-11T22:17:42.843Z",
-    "to": "2024-04-11T22:32:21.240Z"
+    "from": "now-15m",
+    "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "Spammer",
   "uid": "fdifdo722l0jkc",
-  "version": 11,
+  "version": 3,
   "weekStart": ""
 }

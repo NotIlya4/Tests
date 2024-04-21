@@ -33,6 +33,9 @@ microk8s-lite:
   microk8s enable cert-manager
   microk8s enable hostpath-storage
 
+apply:
+  helmfile apply
+
 port-forward:
   kubectl port-forward svc/monitoring-grafana -n monitoring 3000:3000 & \
   kubectl port-forward svc/myapp -n myapp 5001:5001 52323:52323 & \
