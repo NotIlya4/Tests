@@ -4,6 +4,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service", "Service\Service.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spammer", "Spammer\Spammer.csproj", "{80C66739-2510-4B18-9D7B-D76DBD64E735}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlServerMigrationsBuilder", "SqlServerMigrationsBuilder\SqlServerMigrationsBuilder.csproj", "{14499B84-6E34-4FED-9FE7-26D403AD19CF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostgresMigrations", "PostgresMigrations\PostgresMigrations.csproj", "{D0960E85-451D-451B-B44D-01E12F813194}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +22,13 @@ Global
 		{80C66739-2510-4B18-9D7B-D76DBD64E735}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{80C66739-2510-4B18-9D7B-D76DBD64E735}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{80C66739-2510-4B18-9D7B-D76DBD64E735}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14499B84-6E34-4FED-9FE7-26D403AD19CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14499B84-6E34-4FED-9FE7-26D403AD19CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14499B84-6E34-4FED-9FE7-26D403AD19CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14499B84-6E34-4FED-9FE7-26D403AD19CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0960E85-451D-451B-B44D-01E12F813194}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0960E85-451D-451B-B44D-01E12F813194}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0960E85-451D-451B-B44D-01E12F813194}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0960E85-451D-451B-B44D-01E12F813194}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

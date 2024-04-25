@@ -2,10 +2,10 @@
 
 #nullable disable
 
-namespace SqlServerSpammer.Migrations
+namespace SqlServerMigrationsBuilder.Migrations
 {
     /// <inheritdoc />
-    public partial class GuidEntities : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

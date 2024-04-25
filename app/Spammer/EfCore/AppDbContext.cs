@@ -16,6 +16,6 @@ public class AppDbContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         base.OnConfiguring(optionsBuilder);
-        _appDbContextConfigurator.Configure(optionsBuilder);
+        _appDbContextConfigurator.ApplyToDbContextOptionsBuilder(optionsBuilder);
     }
 }

@@ -1,0 +1,26 @@
+tracepoint:syscalls:sys_enter_fsync,tracepoint:syscalls:sys_enter_fdatasync
+/pid == $1/
+{
+        if (args->fd != $2) {
+          return;
+        }
+        @start_count = @start_count + 1;
+        @start[tid] = nsecs;
+        if (@fd_to_filename[args->fd]) {
+        } else {
+          @fd_to_filename[args->fd] = 1;
+          system("echo -n 'fd %d -> ' &1>&2 | readlink /proc/%d/fd/%d",
+                 args->fd, pid, args->fd);
+        }
+}
+
+tracepoint:syscalls:sys_exit_fsync,tracepoint:syscalls:sys_exit_fdatasync
+/pid == $1/
+{
+        if (!@start[tid]) {
+          return;
+        }
+        @end_count = @end_count + 1;
+        @fsync_us_lat = lhist((nsecs - @start[tid]) / 1000, 0, 1500, 100);
+        delete(@start[tid]);
+}

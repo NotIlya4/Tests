@@ -24,19 +24,19 @@
         src: ./test.fio
         dest: ~/test/
     
-    - name: Install perf1
+    - name: Install perf
       apt:
-        name: linux-tools-generic
-        state: present
-    
-    - name: Install perf2
-      apt:
-        name: linux-tools-common
+        name: linux-tools-5.15.0-102-generic
         state: present
     
     - name: Install blktrace
       apt:
         name: blktrace
+        state: present
+    
+    - name: Install bpftrace
+      apt:
+        name: bpftrace
         state: present
     
     - name: Install stress

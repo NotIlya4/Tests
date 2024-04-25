@@ -1,6 +1,6 @@
 ﻿namespace Service;
 
-public enum SqlServerSpammerEntityType
+public enum SpammerStrategyType
 {
     Entity,
     GuidEntity

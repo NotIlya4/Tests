@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
 WORKDIR /sln
 
-COPY ./*.sln ./*/*.csproj ./
+COPY ./*.sln ./*/*.csproj *.props ./
 RUN for file in $(ls *.csproj); do mkdir -p ./${file%.*}/ && mv $file ./${file%.*}/; done
 RUN dotnet restore ./Spammer.sln
 

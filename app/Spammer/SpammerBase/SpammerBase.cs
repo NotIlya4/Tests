@@ -11,19 +11,19 @@ public abstract class SpammerBase(SpammerOptions options)
     private readonly ILogger<SpammerBase>? _logger = options.Logger;
     private readonly ISpammerMetrics? _metrics = options.Metrics;
     
-    public async Task<SpammerRunResult> Run()
+    public async Task<SpammerRunResult> Run(CancellationToken cancellationToken)
     {
         var datas = new ConcurrentDictionary<int, Dictionary<object, object>>(_parallelRunners, _parallelRunners);
         
         var preparationStopwatch = Stopwatch.StartNew();
 
-        await Parallel.ForAsync(0, _parallelRunners, new ParallelOptions(){MaxDegreeOfParallelism = _parallelRunners},
+        await Parallel.ForAsync(0, _parallelRunners, new ParallelOptions(){MaxDegreeOfParallelism = _parallelRunners, CancellationToken = cancellationToken},
             async (i, _) =>
             {
                 var data = new Dictionary<object, object>();
                 datas[i] = data;
 
-                await OnRunnerCreating(i, data);
+                await OnRunnerCreating(i, data, cancellationToken);
             });
         
         preparationStopwatch.Stop();
@@ -32,7 +32,7 @@ public abstract class SpammerBase(SpammerOptions options)
 
         var runStopwatch = Stopwatch.StartNew();
         
-        await Parallel.ForAsync(0, _parallelRunners, new ParallelOptions(){MaxDegreeOfParallelism = _parallelRunners},
+        await Parallel.ForAsync(0, _parallelRunners, new ParallelOptions(){MaxDegreeOfParallelism = _parallelRunners, CancellationToken = cancellationToken},
             async (i, _) =>
             {
                 await SequenceRunner.Run(
@@ -41,7 +41,7 @@ public abstract class SpammerBase(SpammerOptions options)
                         try
                         {
                             await DecorateWithMetrics(
-                                ExecuteAsync,
+                                context => Execute(context, cancellationToken),
                                 new RunnerExecutionContext() 
                                 { 
                                     CurrentExecution = currentRun,
@@ -80,10 +80,11 @@ public abstract class SpammerBase(SpammerOptions options)
     
     protected virtual Task OnRunnerCreating(
         int runnerIndex,
-        Dictionary<object, object> runnerData)
+        Dictionary<object, object> runnerData,
+        CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
     }
 
-    protected abstract Task ExecuteAsync(RunnerExecutionContext context);
+    protected abstract Task Execute(RunnerExecutionContext context, CancellationToken cancellationToken);
 }

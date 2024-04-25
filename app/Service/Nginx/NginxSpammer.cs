@@ -7,7 +7,8 @@ public class NginxSpammer(
     SpammerOptions spammerOptions,
     NginxPingMode pingMode) : SpammerBase(spammerOptions) 
 {
-    protected override Task OnRunnerCreating(int runnerIndex, Dictionary<object, object> runnerData)
+    protected override Task OnRunnerCreating(int runnerIndex, Dictionary<object, object> runnerData,
+        CancellationToken cancellationToken)
     {
         if (pingMode == NginxPingMode.MultipleHttpClients)
         {
@@ -16,7 +17,7 @@ public class NginxSpammer(
         return Task.CompletedTask;
     }
 
-    protected override async Task ExecuteAsync(RunnerExecutionContext context)
+    protected override async Task Execute(RunnerExecutionContext context, CancellationToken cancellationToken)
     {
         var ping = dependencies.Ping;
         if (pingMode == NginxPingMode.MultipleHttpClients)

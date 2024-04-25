@@ -3,8 +3,8 @@
 namespace Service;
 
 [DataContract]
-public class SqlServerSpammerView : SpammerBaseView
+public class SqlServerSpammerView : SmartDbContextSpammerOptionsView
 {
-    [DataMember(Name = "entityType")]
-    public SqlServerSpammerEntityType EntityType { get; set; }
+    [DataMember(Name = "server")]
+    public string? Server { get; set; }
 }

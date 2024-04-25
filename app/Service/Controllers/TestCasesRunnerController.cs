@@ -1,73 +1,97 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Service.PostgresSpammer;
 using Spammer;
 
 namespace Service;
 
 public class TestsController
 {
-    private readonly SqlServerSpammerBuilderFactory _sqlServerSpammerBuilderFactory;
+    private readonly SmartDbContextSpammerBuilderFactory _smartDbContextSpammerBuilderFactory;
     private readonly NginxSpammerBuilderFactory _nginxSpammerBuilderFactory;
-    private readonly AppDbContextConfigurator _dbContextConfigurator;
     private readonly ConnectionStringRepository _connectionStringRepository;
-    private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
+    private readonly SqlServerDependencyBox _sqlServerDependencyBox;
+    private readonly PostgresDependencyBox _postgresDependencyBox;
 
     public TestsController(
-        SqlServerSpammerBuilderFactory sqlServerSpammerBuilderFactory,
+        SmartDbContextSpammerBuilderFactory smartDbContextSpammerBuilderFactory,
         NginxSpammerBuilderFactory nginxSpammerBuilderFactory,
-        AppDbContextConfigurator dbContextConfigurator,
         ConnectionStringRepository connectionStringRepository,
-        IDbContextFactory<AppDbContext> dbContextFactory)
+        SqlServerDependencyBox sqlServerDependencyBox,
+        PostgresDependencyBox postgresDependencyBox)
     {
-        _sqlServerSpammerBuilderFactory = sqlServerSpammerBuilderFactory;
+        _smartDbContextSpammerBuilderFactory = smartDbContextSpammerBuilderFactory;
         _nginxSpammerBuilderFactory = nginxSpammerBuilderFactory;
-        _dbContextConfigurator = dbContextConfigurator;
         _connectionStringRepository = connectionStringRepository;
-        _dbContextFactory = dbContextFactory;
+        _sqlServerDependencyBox = sqlServerDependencyBox;
+        _postgresDependencyBox = postgresDependencyBox;
     }
     
     [HttpPost("tests/sql-server")]
-    public async Task<SpammerResultView> TestSqlServer(SqlServerSpammerView view)
+    public async Task<SpammerResultView> TestSqlServer(SqlServerSpammerView view, CancellationToken cancellationToken)
     {
         var connBuilder = _connectionStringRepository.GetSqlServerConnBuilder();
+
         connBuilder.InitialCatalog = view.TestName;
-        var conn = connBuilder.ConnectionString;
+        if (view.Server is not null)
+            connBuilder.DataSource = view.Server;
         
-        _dbContextConfigurator.Configure(x =>
-        {
-            x.UseSqlServer(conn);
-        });
+        _sqlServerDependencyBox.SetConn(connBuilder.ConnectionString);
 
         await Migrate();
         
-        var builder = _sqlServerSpammerBuilderFactory.Create();
+        var builder = _smartDbContextSpammerBuilderFactory.Create(_sqlServerDependencyBox.DbContextFactory);
 
         var spammer = builder
             .ApplyView(view)
-            .WithEntityType(view.EntityType)
+            .WithStrategyType(view.SpammerStrategyType)
             .Build();
 
-        var result = await spammer.Run();
+        var result = await spammer.Run(cancellationToken);
+
+        return SpammerResultView.FromModel(result);
+    }
+    
+    [HttpPost("tests/postgres")]
+    public async Task<SpammerResultView> TestPostgres(SmartDbContextSpammerOptionsView view, CancellationToken cancellationToken)
+    {
+        var connBuilder = _connectionStringRepository.GetPostgresConnBuilder();
+
+        connBuilder.Database = view.TestName;
+        
+        _postgresDependencyBox.SetConn(connBuilder.ConnectionString);
+
+        await using var dbContext = await _postgresDependencyBox.DbContextFactory.CreateDbContextAsync();
+        await dbContext.Database.MigrateAsync();
+        
+        var builder = _smartDbContextSpammerBuilderFactory.Create(_postgresDependencyBox.DbContextFactory);
+
+        var spammer = builder
+            .ApplyView(view)
+            .WithStrategyType(view.SpammerStrategyType)
+            .Build();
+
+        var result = await spammer.Run(cancellationToken);
 
         return SpammerResultView.FromModel(result);
     }
     
     [HttpPost("tests/nginx")]
-    public async Task<SpammerResultView> TestNginx(NginxSpammerView view)
+    public async Task<SpammerResultView> TestNginx(NginxSpammerView view, CancellationToken cancellationToken)
     {
         var spammer = _nginxSpammerBuilderFactory.Create()
             .ApplyView(view)
             .WithPingMode(view.PingMode)
             .Build();
 
-        var result = await spammer.Run();
+        var result = await spammer.Run(cancellationToken);
 
         return SpammerResultView.FromModel(result);
     }
 
     private async Task Migrate()
     {
-        await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await _sqlServerDependencyBox.DbContextFactory.CreateDbContextAsync();
         await dbContext.Database.MigrateAsync();
     }
 }

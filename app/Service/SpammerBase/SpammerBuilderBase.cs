@@ -28,7 +28,7 @@ public abstract class SpammerBuilderBase<TSpammerBuilderBase, TSpammer>(SpammerB
         return (TSpammerBuilderBase)this;
     }
 
-    public TSpammerBuilderBase ApplyView(SpammerBaseView baseView)
+    public virtual TSpammerBuilderBase ApplyView(SpammerBaseView baseView)
     {
         _parallelRunners = baseView.ParallelRunners;
         _runnerExecutions = baseView.RunnerExecutions;

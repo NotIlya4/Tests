@@ -1,7 +1,9 @@
 using System.Net.Http.Headers;
 using System.Text.Json.Serialization;
+using PostgresMigrations;
 using Service;
-using Spammer;
+using Service.PostgresSpammer;
+using SqlServerMigrationsBuilder;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -16,10 +18,6 @@ services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });;
 services.AddSingleton<AppMetrics>();
-services.AddTransient<SqlServerSpammerBuilderFactory>();
-services.AddTransient<SqlServerSpammerDependencies>();
-services.AddSingleton<SqlServerEntityCreationStrategyProvider>();
-services.AddScoped<AppDbContextConfigurator>();
 services.AddSingleton<ConnectionStringRepository>();
 services.AddHttpClient<NginxPing>();
 services.AddTransient<NginxPing>(x =>
@@ -34,8 +32,23 @@ services.AddTransient<NginxPing>(x =>
 services.AddTransient<SpammerBuilderBaseDependencies>();
 services.AddTransient<NginxSpammerDependencies>();
 services.AddTransient<NginxSpammerBuilderFactory>();
+services.AddTransient<SqlServerDependencyBox>(x => 
+    new SqlServerDependencyBox(
+        new SqlServerDependencyBoxOptions 
+        { 
+            DefaultConn = x.GetRequiredService<ConnectionStringRepository>().GetSqlServerConn(),
+            MigrationAssembly = typeof(SqlServerMigrationsBuilderAnchor).Assembly.GetName().Name!
+        }));
+services.AddTransient<IDbContextSpammerStrategy, EntitySpammerStrategy>();
+services.AddTransient<IDbContextSpammerStrategy, GuidEntitySpammerStrategy>();
+services.AddTransient<PostgresDependencyBox>(x =>
+    new PostgresDependencyBox(new PostgresDependencyBoxOptions()
+    {
+        DefaultConn = x.GetRequiredService<ConnectionStringRepository>().GetPostgresConnBuilder().ConnectionString,
+        MigrationAssembly = typeof(PostgresMigrationsAnchor).Assembly.GetName().Name!
+    }));
+services.AddTransient<SmartDbContextSpammerBuilderFactory>();
 
-services.AddConfiguredDbContextFactory(config.GetSqlServerConn("SqlServerConn"));
 services.AddConfiguredOpenTelemetry();
 
 var app = builder.Build();

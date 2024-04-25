@@ -1,5 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using Spammer;
@@ -23,18 +24,6 @@ public static class AppExtensions
             });
         return services;
     }
-
-    public static IServiceCollection AddConfiguredDbContextFactory(this IServiceCollection services, string conn)
-    {
-        services.AddDbContextFactory<AppDbContext>(
-            x => x.UseSqlServer(
-                conn,
-                b => b
-                    .MigrationsAssembly(typeof(Program).Assembly.GetName().Name)
-                    .EnableRetryOnFailure()),
-            ServiceLifetime.Scoped);
-        return services;
-    }
     
     public static string GetSqlServerConn(this IConfiguration config, string key)
     {
@@ -45,6 +34,27 @@ public static class AppExtensions
     {
         var section = config.GetSection(key);
         var builder = new SqlConnectionStringBuilder();
+        
+        if (section.Value is null)
+        {
+            var dictConfig = section.GetChildren().ToDictionary(k => k.Key, v => v.Value);
+            foreach (KeyValuePair<string,string?> parameter in dictConfig)
+            {
+                builder.Add(parameter.Key, parameter.Value ?? "");
+            }
+        }
+        else
+        {
+            builder.ConnectionString = section.Value;
+        }
+
+        return builder;
+    }
+    
+    public static NpgsqlConnectionStringBuilder GetPostgresConnBuilder(this IConfiguration config, string key)
+    {
+        var section = config.GetSection(key);
+        var builder = new NpgsqlConnectionStringBuilder();
         
         if (section.Value is null)
         {

@@ -1,3 +1,9 @@
+sql-server-migrations-add name:
+  dotnet-ef migrations add {{name}} -s ./SqlServerMigrationsBuilder/SqlServerMigrationsBuilder.csproj
+
+postgres-migrations-add name:
+  dotnet-ef migrations add {{name}} -s ./PostgresMigrations/PostgresMigrations.csproj
+
 update:
 	docker build . --tag notilya4/db-tests.spammer:latest
 	docker push notilya4/db-tests.spammer:latest 

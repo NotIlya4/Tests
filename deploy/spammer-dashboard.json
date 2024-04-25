@@ -119,7 +119,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "avg ((runner_execution_duration_ms_sum{pod=~\"$pod\", test_name=~\"$test_name\"} / runner_execution_duration_ms_count{pod=~\"$pod\", test_name=~\"$test_name\"}) > -1e12) by (pod, test_name, spammer_implementation_class)",
+          "expr": "avg ((rate(runner_execution_duration_ms_sum{pod=~\"$pod\", test_name=~\"$test_name\"}[$__rate_interval]) / rate(runner_execution_duration_ms_count{pod=~\"$pod\", test_name=~\"$test_name\"}[$__rate_interval])) > -1e12) by (pod, test_name, spammer_implementation_class)",
           "instant": false,
           "legendFormat": "{{test_name}} - {{spammer_implementation_class}} - {{pod}}",
           "range": true,
@@ -480,7 +480,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -519,7 +520,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "avg ((runner_execution_duration_ms_sum{pod=~\"$pod\", test_name=~\"$test_name\"} / runner_execution_duration_ms_count{pod=~\"$pod\", test_name=~\"$test_name\"}) > -1e12) by (pod, test_name, runner_index, spammer_implementation_class)",
+          "expr": "avg ((rate(runner_execution_duration_ms_sum{pod=~\"$pod\", test_name=~\"$test_name\"}[$__rate_interval]) / rate(runner_execution_duration_ms_count{pod=~\"$pod\", test_name=~\"$test_name\"}[$__rate_interval])) > -1e12) by (pod, test_name, runner_index, spammer_implementation_class)",
           "instant": false,
           "legendFormat": "{{runner_index}} - {{test_name}} - {{spammer_implementation_class}} - {{pod}}",
           "range": true,
@@ -576,7 +577,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -672,7 +674,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -763,10 +766,10 @@
         "current": {
           "selected": true,
           "text": [
-            "All"
+            "test1"
           ],
           "value": [
-            "$__all"
+            "test1"
           ]
         },
         "datasource": {
@@ -801,6 +804,6 @@
   "timezone": "browser",
   "title": "Spammer",
   "uid": "fdifdo722l0jkc",
-  "version": 3,
+  "version": 2,
   "weekStart": ""
 }
