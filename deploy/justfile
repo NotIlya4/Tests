@@ -34,7 +34,7 @@ microk8s-lite:
   microk8s enable hostpath-storage
 
 apply:
-  helmfile apply
+  helmfile apply --concurrency=1
 
 port-forward:
   kubectl port-forward svc/monitoring-grafana -n monitoring 3000:3000 & \

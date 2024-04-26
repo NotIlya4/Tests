@@ -26,6 +26,10 @@ spec:
             value: {{ .Values.sql_server.host }}
           - name: SqlServerConn__Database
             value: {{ .Values.sql_server.database }}
+          - name: PostgresConn__Host
+            value: {{ .Values.postgres.host }}
+          - name: PostgresConn__Port
+            value: {{ .Values.postgres.port | quote }}
           - name: SqlServerForwardSpammer__ParallelExecutions
             value: {{ .Values.myapp.parallel_executions | quote }}
           - name: SqlServerForwardSpammer__RetriesCount

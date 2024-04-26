@@ -4,6 +4,9 @@ image: notilya4/db-tests.spammer:latest
 sql_server:
   host: sql-server.sql-server,1433
   database: Test10
+postgres:
+  host: postgres.postgres
+  port: 5432
 myapp:
   parallel_executions: 20
   retries_count: 15000

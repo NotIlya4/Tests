@@ -63,6 +63,9 @@ releases:
     - admissionWebhooks:
         certManager:
           enabled: true
+      manager:
+        collectorImage:
+          repository: "otel/opentelemetry-collector-contrib"
 
   - name: myapp
     namespace: myapp
