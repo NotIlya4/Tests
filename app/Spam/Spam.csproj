@@ -1,0 +1,9 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" />
+        <PackageReference Include="OpenTelemetry" />
+        <PackageReference Include="System.Diagnostics.DiagnosticSource" />
+    </ItemGroup>
+
+</Project>

@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PostgresMigrations;
-using Spammer;
+using Spam;
 
 var builder = WebApplication.CreateBuilder(args);
 

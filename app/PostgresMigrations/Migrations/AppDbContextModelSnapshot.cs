@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using Spammer;
+using Spam;
 
 #nullable disable
 
@@ -21,7 +21,7 @@ namespace PostgresMigrations.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Spammer.Entity", b =>
+            modelBuilder.Entity("Spam.SequentialEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -35,17 +35,17 @@ namespace PostgresMigrations.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Entities");
+                    b.ToTable("SequentialEntities");
                 });
 
-            modelBuilder.Entity("Spammer.GuidEntity", b =>
+            modelBuilder.Entity("Spam.StringEntity", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.ToTable("GuidEntities");
+                    b.ToTable("StringEntities");
                 });
 #pragma warning restore 612, 618
         }

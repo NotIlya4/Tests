@@ -1,4 +1,4 @@
-﻿using Spammer;
+﻿using Spam;
 
 namespace Service;
 

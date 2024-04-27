@@ -1,5 +1,5 @@
 ﻿using System.Runtime.Serialization;
-using Spammer;
+using Spam;
 
 namespace Service;
 

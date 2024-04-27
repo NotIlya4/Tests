@@ -3,7 +3,7 @@ using Spam;
 
 namespace Service;
 
-public class SqlServerDependencyBox
+public class PostgresDependencyBox
 {
     private readonly IServiceCollection _serviceCollection = new ServiceCollection();
 
@@ -12,14 +12,14 @@ public class SqlServerDependencyBox
     public IDbContextFactory<AppDbContext> DbContextFactory =>
         Services.GetRequiredService<IDbContextFactory<AppDbContext>>();
     
-    public SqlServerDependencyBox(SqlServerDependencyBoxOptions options)
+    public PostgresDependencyBox(PostgresDependencyBoxOptions options)
     {
         _serviceCollection.AddDbContextFactory<AppDbContext>(
-            x => x.UseSqlServer(
-                options.DefaultConn,
-                b => b
-                    .MigrationsAssembly(options.MigrationAssembly)
-                    .EnableRetryOnFailure())
+            x => x.UseNpgsql(
+                    options.DefaultConn,
+                    b => b
+                        .MigrationsAssembly(options.MigrationAssembly)
+                        .EnableRetryOnFailure())
                 .EnableDetailedErrors());
 
         _serviceCollection.AddSingleton<AppDbContextConfigurator>();
@@ -29,7 +29,7 @@ public class SqlServerDependencyBox
 
     public void SetConn(string conn)
     {
-        ConfigureDbContext(x => x.UseSqlServer(conn));
+        ConfigureDbContext(x => x.UseNpgsql(conn));
     }
 
     public void ConfigureDbContext(Action<DbContextOptionsBuilder> action)
@@ -37,7 +37,7 @@ public class SqlServerDependencyBox
         var configurator = Services.GetRequiredService<AppDbContextConfigurator>();
         configurator.Configure(action);
     }
-
+    
     public async Task Migrate()
     {
         await using var dbContext = await DbContextFactory.CreateDbContextAsync();

@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Spammer;
+using Spam;
 using SqlServerMigrationsBuilder;
 
 var builder = WebApplication.CreateBuilder(args);

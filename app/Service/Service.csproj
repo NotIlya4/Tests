@@ -17,7 +17,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\PostgresMigrations\PostgresMigrations.csproj" />
-      <ProjectReference Include="..\Spammer\Spammer.csproj" />
+      <ProjectReference Include="..\Spam\Spam.csproj" />
       <ProjectReference Include="..\SqlServerMigrationsBuilder\SqlServerMigrationsBuilder.csproj" />
     </ItemGroup>
 

@@ -1,9 +1,11 @@
-﻿using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Net.Http.Headers;
+using System.Text.Json.Serialization;
+using Microsoft.Data.SqlClient;
 using Npgsql;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
-using Spammer;
+using PostgresMigrations;
+using SqlServerMigrationsBuilder;
 
 namespace Service;
 
@@ -22,6 +24,64 @@ public static class AppExtensions
                 x.AddOtlpExporter((_, readerOptions) =>
                     readerOptions.PeriodicExportingMetricReaderOptions.ExportIntervalMilliseconds = 5000);
             });
+        return services;
+    }
+
+    public static IServiceCollection AddDependencyBox(this IServiceCollection services)
+    {
+        services.AddTransient<SqlServerDependencyBox>(x => 
+            new SqlServerDependencyBox(new SqlServerDependencyBoxOptions 
+            { 
+                DefaultConn = x.GetRequiredService<ConnectionStringRepository>().GetSqlServerConn(),
+                MigrationAssembly = typeof(SqlServerMigrationsBuilderAnchor).Assembly.GetName().Name!
+            }));
+
+        services.AddTransient<PostgresDependencyBox>(x =>
+            new PostgresDependencyBox(new PostgresDependencyBoxOptions()
+            {
+                DefaultConn = x.GetRequiredService<ConnectionStringRepository>().GetPostgresConnBuilder().ConnectionString,
+                MigrationAssembly = typeof(PostgresMigrationsAnchor).Assembly.GetName().Name!
+            }));
+
+        return services;
+    }
+
+    public static IServiceCollection AddAspNetCoreStaff(this IServiceCollection services)
+    {
+        services.AddEndpointsApiExplorer();
+        services.AddSwaggerGen();
+        services.AddHealthChecks();
+        services.AddControllers()
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });;
+
+        return services;
+    }
+
+    public static IServiceCollection AddMics(this IServiceCollection services)
+    {
+        services.AddSingleton<AppMetrics>();
+        services.AddSingleton<ConnectionStringRepository>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddNginxStrategyServices(this IServiceCollection services, IConfiguration config)
+    {
+        services.AddHttpClient<NginxPingService>();
+        services.AddTransient<NginxPingService>(x =>
+        {
+            var client = x.GetRequiredService<HttpClient>();
+            client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue()
+            {
+                NoCache = true
+            };
+            return new NginxPingService(client, config.GetRequiredSection("NginxAddress").Value!);
+        });
+        services.AddTransient<NginxPingServiceFactory>();
+
         return services;
     }
     

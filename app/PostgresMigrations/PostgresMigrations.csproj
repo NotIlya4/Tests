@@ -15,7 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Spammer\Spammer.csproj" />
+      <ProjectReference Include="..\Spam\Spam.csproj" />
     </ItemGroup>
 
 </Project>
