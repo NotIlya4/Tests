@@ -31,7 +31,8 @@ namespace SqlServerMigrationsBuilder.Migrations
 
                     b.Property<string>("SomeProperty")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
 
                     b.HasKey("Id");
 
@@ -41,7 +42,8 @@ namespace SqlServerMigrationsBuilder.Migrations
             modelBuilder.Entity("Spam.StringEntity", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
 
                     b.HasKey("Id");
 

@@ -11,7 +11,7 @@ using Spam;
 namespace PostgresMigrations.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240427021803_Initial")]
+    [Migration("20240427035243_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -34,7 +34,8 @@ namespace PostgresMigrations.Migrations
 
                     b.Property<string>("SomeProperty")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
 
                     b.HasKey("Id");
 
@@ -44,7 +45,8 @@ namespace PostgresMigrations.Migrations
             modelBuilder.Entity("Spam.StringEntity", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("text");
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
 
                     b.HasKey("Id");
 

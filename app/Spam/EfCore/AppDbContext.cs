@@ -18,4 +18,19 @@ public class AppDbContext : DbContext
         base.OnConfiguring(optionsBuilder);
         _appDbContextConfigurator.ApplyToDbContextOptionsBuilder(optionsBuilder);
     }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder
+            .Entity<StringEntity>()
+            .Property(x => x.Id)
+            .HasMaxLength(512);
+        
+        modelBuilder
+            .Entity<SequentialEntity>()
+            .Property(x => x.SomeProperty)
+            .HasMaxLength(512);
+    }
 }

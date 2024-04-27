@@ -11,7 +11,7 @@ using Spam;
 namespace SqlServerMigrationsBuilder.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240427021807_Initial")]
+    [Migration("20240427035236_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -34,7 +34,8 @@ namespace SqlServerMigrationsBuilder.Migrations
 
                     b.Property<string>("SomeProperty")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
 
                     b.HasKey("Id");
 
@@ -44,7 +45,8 @@ namespace SqlServerMigrationsBuilder.Migrations
             modelBuilder.Entity("Spam.StringEntity", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
 
                     b.HasKey("Id");
 
