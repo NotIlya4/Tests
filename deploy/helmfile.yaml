@@ -14,7 +14,7 @@ releases:
   - name: sql-server
     namespace: sql-server
     chart: ./sql-server
-    installed: true
+    installed: false
     values:
     - ./values/sql-server-values.yaml
 

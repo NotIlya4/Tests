@@ -20,6 +20,8 @@ public static class AppExtensions
             })
             .WithMetrics(x =>
             {
+                x.AddRuntimeInstrumentation();
+                x.AddProcessInstrumentation();
                 x.AddMeter(AppMetrics.MeterName);
                 x.AddOtlpExporter((_, readerOptions) =>
                     readerOptions.PeriodicExportingMetricReaderOptions.ExportIntervalMilliseconds = 5000);

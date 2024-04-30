@@ -5,14 +5,23 @@ primary:
     type: LoadBalancer
     ports:
       postgresql: 5432
-
-resources:
-  requests:
-    cpu: '2'
-    memory: 2Gi
-
-persistence:
-  size: 50Gi
+  extendedConfiguration: |
+    track_io_timing = on
+    track_wal_io_timing = on
+    track_functions = all
+    wal_sync_method = fdatasync
+    shared_preload_libraries = 'pg_stat_statements'
+    bgwriter_delay = 200ms
+    bgwriter_lru_maxpages = 100
+    bgwriter_lru_multiplier = 2.0
+    bgwriter_flush_after = 10
+    shared_buffers = 524288
+  resources:
+    requests:
+      cpu: '2'
+      memory: 2Gi
+  persistence:
+    size: 50Gi
 
 auth:
   postgresPassword: pgpass
