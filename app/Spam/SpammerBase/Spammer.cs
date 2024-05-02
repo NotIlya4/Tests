@@ -26,7 +26,7 @@ public class Spammer(SpammerOptions options)
                 var data = new Dictionary<object, object>();
                 datas[i] = data;
 
-                await OnRunnerCreating(i, data, cancellationToken);
+                await options.SpammerStrategy.Prepare(i, data, cancellationToken);
             });
         
         preparationStopwatch.Stop();
@@ -82,14 +82,6 @@ public class Spammer(SpammerOptions options)
         
         stopwatch.Stop();
         _metrics?.RecordExecutionProcessed(stopwatch.Elapsed, context);
-    }
-    
-    protected virtual Task OnRunnerCreating(
-        int runnerIndex,
-        Dictionary<object, object> runnerData,
-        CancellationToken cancellationToken)
-    {
-        return Task.CompletedTask;
     }
 
     protected virtual async Task Execute(RunnerExecutionContext context, CancellationToken cancellationToken)

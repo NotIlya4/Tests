@@ -21,7 +21,7 @@ primary:
       cpu: '2'
       memory: 2Gi
   persistence:
-    size: 50Gi
+    size: 8Gi
 
 auth:
   postgresPassword: pgpass

@@ -24,11 +24,6 @@
         src: ./test.fio
         dest: ./test/
     
-    - name: Copy dottrace
-      ansible.builtin.copy:
-        src: ./JetBrains.dotTrace.CommandLineTools.linux-x64.2024.1.1
-        dest: ./
-    
     - name: Install perf
       apt:
         name: linux-tools-5.15.0-105-generic

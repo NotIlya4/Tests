@@ -7,6 +7,15 @@ public class PostgresDependencyBox
 {
     private readonly IServiceCollection _serviceCollection = new ServiceCollection();
 
+    public string Conn
+    {
+        get
+        {
+            using var dbContext = DbContextFactory.CreateDbContext();
+            return dbContext.Database.GetConnectionString()!;
+        }
+    }
+
     public IServiceProvider Services { get; }
 
     public IDbContextFactory<AppDbContext> DbContextFactory =>

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Spam;
 
 namespace Service;
 
@@ -49,7 +50,7 @@ public class TestsController
     }
     
     [HttpPost("tests/postgres")]
-    public async Task<SpammerResultView> TestPostgres(DbContextStrategyViewOptions view, CancellationToken cancellationToken)
+    public async Task<SpammerResultView> TestPostgres(PostgresStrategyViewOptions view, CancellationToken cancellationToken)
     {
         var connBuilder = _connectionStringRepository.GetPostgresConnBuilder();
         connBuilder.Database = view.TestName;
@@ -57,14 +58,24 @@ public class TestsController
 
         await _postgresDependencyBox.Migrate();
 
-        var spammer = _spammerBuilder
+        var builder = _spammerBuilder
             .ApplyView(view)
             .WithDbContextStrategy(
                 _postgresDependencyBox.DbContextFactory,
                 view.DbContextStrategyType,
                 view.DataCreationStrategyType,
-                view.FixedLengthStringLength)
-            .Build();
+                view.FixedLengthStringLength);
+
+        if (view.Dapper)
+        {
+            _spammerBuilder.WithSpammerStrategy(new PostgresDapperGuidStrategy(new PostgresDapperGuidStrategyOptions()
+            {
+                Conn = _postgresDependencyBox.Conn,
+                DataCreationStrategy = new GuidDataCreationStrategy()
+            }));
+        }
+        
+        var spammer = builder.Build();
 
         var result = await spammer.Run(cancellationToken);
 
