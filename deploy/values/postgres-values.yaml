@@ -11,17 +11,22 @@ primary:
     track_functions = all
     wal_sync_method = fdatasync
     shared_preload_libraries = 'pg_stat_statements'
-    bgwriter_delay = 200ms
-    bgwriter_lru_maxpages = 100
-    bgwriter_lru_multiplier = 2.0
-    bgwriter_flush_after = 10
     shared_buffers = 524288
+    max_wal_size = 4GB
   resources:
     requests:
       cpu: '2'
       memory: 2Gi
   persistence:
-    size: 8Gi
+    size: 100Gi
 
 auth:
   postgresPassword: pgpass
+  database: test1
+
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    labels:
+      release: monitoring

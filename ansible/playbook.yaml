@@ -22,8 +22,8 @@
     - name: Copy fio test
       ansible.builtin.copy:
         src: ./test.fio
-        dest: ./test/
-    
+        dest: ./
+
     - name: Install perf
       apt:
         name: linux-tools-5.15.0-105-generic
@@ -37,6 +37,16 @@
     - name: Install bpftrace
       apt:
         name: bpftrace
+        state: present
+    
+    - name: Install ubuntu-dbgsym-keyring
+      apt:
+        name: ubuntu-dbgsym-keyring
+        state: present
+    
+    - name: Install bpftrace-dbgsym
+      apt:
+        name: bpftrace-dbgsym
         state: present
     
     - name: Install stress

@@ -1,0 +1,16 @@
+tracepoint:block:block_rq_issue
+{
+        $seconds = 10;
+
+        @z_requests_total = count();
+        @z_throughput_total_kb = sum(args->bytes / 1024);
+
+        @requests[comm, pid] = count();
+        @throughput_kb[comm, pid] = sum(args->bytes / 1024);
+        @avg_request[comm, pid] = avg(args->bytes / 1024);
+
+        if (elapsed > $seconds * 1000000000)
+        {
+                exit();
+        }
+}
