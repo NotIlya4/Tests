@@ -17,17 +17,16 @@ public class Spammer(SpammerOptions options)
         
         var preparationStopwatch = Stopwatch.StartNew();
 
-        await Parallel.ForAsync(
-            0,
-            _parallelRunners,
-            new ParallelOptions() { MaxDegreeOfParallelism = _parallelRunners, CancellationToken = cancellationToken },
-            async (i, _) =>
+        await options.SpammerParallelEngine.ParallelRun(
+            options.ParallelRunners,
+            async i =>
             {
                 var data = new Dictionary<object, object>();
                 datas[i] = data;
 
                 await options.SpammerStrategy.Prepare(i, data, cancellationToken);
-            });
+            },
+            cancellationToken);
         
         preparationStopwatch.Stop();
         var preparationTime = preparationStopwatch.Elapsed;
@@ -35,23 +34,23 @@ public class Spammer(SpammerOptions options)
 
         var runStopwatch = Stopwatch.StartNew();
 
-        await Parallel.ForAsync(
-            0,
-            _parallelRunners,
-            new ParallelOptions() { MaxDegreeOfParallelism = _parallelRunners, CancellationToken = cancellationToken },
-            async (i, _) =>
+        await options.SpammerParallelEngine.ParallelRun(
+            options.ParallelRunners,
+            async i =>
             {
+                var data = datas[i];
+                
                 await SequenceRunner.Run(
                     async currentRun =>
                     {
                         try
                         {
                             await DecorateWithMetrics(
-                                context => Execute(context, cancellationToken),
+                                context => options.SpammerStrategy.Execute(context, cancellationToken),
                                 new RunnerExecutionContext()
                                 {
                                     CurrentExecution = currentRun,
-                                    Data = datas[i],
+                                    Data = data,
                                     RunnerIndex = i
                                 });
                         }
@@ -61,7 +60,8 @@ public class Spammer(SpammerOptions options)
                         }
                     },
                     _runnerExecutions);
-            });
+            },
+            cancellationToken);
         
         runStopwatch.Stop();
         var runElapsed = runStopwatch.Elapsed;
@@ -82,10 +82,5 @@ public class Spammer(SpammerOptions options)
         
         stopwatch.Stop();
         _metrics?.RecordExecutionProcessed(stopwatch.Elapsed, context);
-    }
-
-    protected virtual async Task Execute(RunnerExecutionContext context, CancellationToken cancellationToken)
-    {
-        await options.SpammerStrategy.Execute(context, cancellationToken);
     }
 }

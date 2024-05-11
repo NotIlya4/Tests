@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.ComponentModel;
+using Microsoft.AspNetCore.Mvc;
+using Service.Enums;
 using Spam;
 
 namespace Service;
@@ -23,25 +25,25 @@ public class TestsController
     }
     
     [HttpPost("tests/sql-server")]
-    public async Task<SpammerResultView> TestSqlServer(SqlServerStrategyView view, CancellationToken cancellationToken)
+    public async Task<SpammerResultView> TestSqlServer(SqlServerStrategyOptionsView optionsView, CancellationToken cancellationToken)
     {
         var connBuilder = _connectionStringRepository.GetSqlServerConnBuilder();
 
-        connBuilder.InitialCatalog = view.TestName;
-        if (view.Server is not null)
-            connBuilder.DataSource = view.Server;
+        connBuilder.InitialCatalog = optionsView.TestName;
+        if (optionsView.Server is not null)
+            connBuilder.DataSource = optionsView.Server;
         
         _sqlServerDependencyBox.SetConn(connBuilder.ConnectionString);
 
         await _sqlServerDependencyBox.Migrate();
 
         var spammer = _spammerBuilder
-            .ApplyView(view)
+            .ApplyView(optionsView)
             .WithDbContextStrategy(
                 _sqlServerDependencyBox.DbContextFactory,
-                view.DbContextStrategyType,
-                view.DataCreationStrategyType,
-                view.FixedLengthStringLength)
+                optionsView.DbContextStrategyType,
+                optionsView.DataCreationStrategyOptions.DataCreationStrategyType,
+                optionsView.DataCreationStrategyOptions.FixedLengthStringLength)
             .Build();
 
         var result = await spammer.Run(cancellationToken);
@@ -50,29 +52,27 @@ public class TestsController
     }
     
     [HttpPost("tests/postgres")]
-    public async Task<SpammerResultView> TestPostgres(PostgresStrategyViewOptions view, CancellationToken cancellationToken)
+    public async Task<SpammerResultView> TestPostgres(PostgresStrategyOptionsView optionsView, CancellationToken cancellationToken)
     {
         var connBuilder = _connectionStringRepository.GetPostgresConnBuilder();
-        connBuilder.Database = view.TestName;
+        connBuilder.Database = optionsView.TestName;
         _postgresDependencyBox.SetConn(connBuilder.ConnectionString);
 
         await _postgresDependencyBox.Migrate();
 
         var builder = _spammerBuilder
-            .ApplyView(view)
+            .ApplyView(optionsView)
             .WithDbContextStrategy(
                 _postgresDependencyBox.DbContextFactory,
-                view.DbContextStrategyType,
-                view.DataCreationStrategyType,
-                view.FixedLengthStringLength);
+                optionsView.DbContextStrategyType,
+                optionsView.DataCreationStrategyOptions.DataCreationStrategyType,
+                optionsView.DataCreationStrategyOptions.FixedLengthStringLength);
 
-        if (view.Dapper)
+        if (!optionsView.IsDbContextStrategy)
         {
-            _spammerBuilder.WithSpammerStrategy(new PostgresDapperGuidStrategy(new PostgresDapperGuidStrategyOptions()
-            {
-                Conn = _postgresDependencyBox.Conn,
-                DataCreationStrategy = new GuidDataCreationStrategy()
-            }));
+            _spammerBuilder.WithSpammerStrategy(optionsView.PostgresStrategyType.CreateStrategy(
+                _postgresDependencyBox.Conn,
+                optionsView.DataCreationStrategyOptions.CreateStrategy()));
         }
         
         var spammer = builder.Build();
@@ -88,6 +88,23 @@ public class TestsController
         var spammer = _spammerBuilder
             .ApplyView(view)
             .WithNginxStrategy(view.PingMode)
+            .Build();
+
+        var result = await spammer.Run(cancellationToken);
+
+        return SpammerResultView.FromModel(result);
+    }
+    
+    [HttpPost("tests/sanity")]
+    public async Task<SpammerResultView> TestSanity([DefaultValue(1000)] int sleepMs, CancellationToken cancellationToken)
+    {
+        var times = 60000 / sleepMs;
+        
+        var spammer = _spammerBuilder
+            .WithParallelRunners(1)
+            .WithRunnerExecutions(times)
+            .WithSpammerStrategy(new SanityStrategy(sleepMs))
+            .WithTestName("sanity")
             .Build();
 
         var result = await spammer.Run(cancellationToken);

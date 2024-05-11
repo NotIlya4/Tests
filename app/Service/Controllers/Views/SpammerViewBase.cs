@@ -11,6 +11,8 @@ public class SpammerViewBase
     [DefaultValue(1)]
     public int RunnerExecutions { get; set; } = 1;
 
+    public SpammerParallelEngineType SpammerParallelEngineType { get; set; }
+
     [DefaultValue("test1")]
     public string TestName { get; set; } = "test1";
 

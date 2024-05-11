@@ -4,6 +4,6 @@ folder_id = "b1g1go57602tvtunmuro"
 name = "test1"
 
 instance_resources = {
-  cores = 12
-  memory = 12
+  cores = 32
+  memory = 32
 }

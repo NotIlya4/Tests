@@ -12,13 +12,19 @@ primary:
     wal_sync_method = fdatasync
     shared_preload_libraries = 'pg_stat_statements'
     shared_buffers = 524288
-    max_wal_size = 4GB
+    max_wal_size = 10GB
+    checkpoint_timeout = 300
+    max_connections = 999
   resources:
     requests:
       cpu: '2'
       memory: 2Gi
   persistence:
     size: 100Gi
+  containerSecurityContext:
+    allowPrivilegeEscalation: true
+    privileged: true
+    runAsNonRoot: false
 
 auth:
   postgresPassword: pgpass

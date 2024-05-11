@@ -44,10 +44,10 @@
         name: ubuntu-dbgsym-keyring
         state: present
     
-    - name: Install bpftrace-dbgsym
-      apt:
-        name: bpftrace-dbgsym
-        state: present
+    # - name: Install bpftrace-dbgsym
+    #   apt:
+    #     name: bpftrace-dbgsym
+    #     state: present
     
     - name: Install stress
       apt:

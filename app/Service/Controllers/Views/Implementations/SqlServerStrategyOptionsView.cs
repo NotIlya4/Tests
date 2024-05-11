@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace Service;
 
 [DataContract]
-public class SqlServerStrategyView : DbContextStrategyViewOptions
+public class SqlServerStrategyOptionsView : DbContextStrategyOptionsView
 {
     [DataMember(Name = "server")]
     [DefaultValue(null)]

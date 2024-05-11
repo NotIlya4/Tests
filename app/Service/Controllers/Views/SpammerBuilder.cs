@@ -13,6 +13,7 @@ public class SpammerBuilder(
     private int? _parallelRunners;
     private string? _testName;
     private ISpammerStrategy? _spammerStrategy;
+    private ISpammerParallelEngine? _spammerParallelEngine;
 
     public SpammerBuilder WithDbContextStrategy(
         IDbContextFactory<AppDbContext> dbContextFactory,
@@ -25,20 +26,7 @@ public class SpammerBuilder(
             DbContextFactory = dbContextFactory,
             DbContextRetryStrategy = DbContextRetryStrategy.FullExpensive,
             HotConnections = true,
-            OperationStrategy = dbContextStrategyType switch
-            {
-                DbContextStrategyType.SequentialEntity => new SequentialEntityInsertStrategy(
-                    new SequentialEntityInsertStrategyOptions()
-                    {
-                        DataCreationStrategy = dataCreationStrategyType.CreateStrategy(fixedLengthStringLength)
-                    }),
-                DbContextStrategyType.StringEntity => new StringEntityInsertStrategy(
-                    new StringEntityInsertStrategyOptions()
-                    {
-                        DataCreationStrategy = dataCreationStrategyType.CreateStrategy(fixedLengthStringLength)
-                    }),
-                _ => throw new ArgumentOutOfRangeException(nameof(dbContextStrategyType), dbContextStrategyType, null)
-            }
+            OperationStrategy = dbContextStrategyType.CreateDbContextStrategy(dataCreationStrategyType.CreateStrategy(fixedLengthStringLength))
         });
         
         return this;
@@ -84,6 +72,7 @@ public class SpammerBuilder(
         _parallelRunners = viewBase.ParallelRunners;
         _runnerExecutions = viewBase.RunnerExecutions;
         _testName = viewBase.TestName;
+        _spammerParallelEngine = viewBase.SpammerParallelEngineType.CreateEngine();
         return this;
     }
 
@@ -98,11 +87,13 @@ public class SpammerBuilder(
         ArgumentNullException.ThrowIfNull(_runnerExecutions);
         ArgumentNullException.ThrowIfNull(_testName);
         ArgumentNullException.ThrowIfNull(_spammerStrategy);
+        ArgumentNullException.ThrowIfNull(_spammerParallelEngine);
 
         return Create(new SpammerOptions()
         {
             Logger = logger,
             SpammerStrategy = _spammerStrategy,
+            SpammerParallelEngine = _spammerParallelEngine,
             Metrics = new SpammerMetrics(appMetrics, _testName, nameof(Spammer)),
             ParallelRunners = _parallelRunners.Value,
             RunnerExecutions = _runnerExecutions.Value

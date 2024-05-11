@@ -22,13 +22,6 @@ prometheusOperator:
         memory: "200Mi"
 
 grafana:
-  grafana.ini:
-    database:
-      host: postgres.monitoring-postgres.svc.cluster.local:31331
-      user: postgres
-      password: pgpass
-      type: postgres
-      name: grafana
   service:
     type: LoadBalancer
     port: 3000

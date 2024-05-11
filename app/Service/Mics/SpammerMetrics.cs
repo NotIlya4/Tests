@@ -10,7 +10,7 @@ public class SpammerMetrics(
     public void RecordExecutionProcessed(TimeSpan elapsed, RunnerExecutionContext executionContext)
     {
         metrics.RunnerExecutionDuration.Record(
-            elapsed.Milliseconds,
+            elapsed.TotalMicroseconds,
             new KeyValuePair<string, object?>("test_name", testName),
             new KeyValuePair<string, object?>("runner_index", executionContext.RunnerIndex),
             new KeyValuePair<string, object?>("spammer_implementation_class", implementationClass));

@@ -14,4 +14,45 @@ public static class DataCreationStrategyTypeExtensions
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
         };
     }
+    
+    public static ISpammerParallelEngine CreateEngine(this SpammerParallelEngineType type)
+    {
+        return type switch
+        {
+            SpammerParallelEngineType.ParallelForEachAsync => new ParallelForAsyncParallelEngine(),
+            SpammerParallelEngineType.For => new ForParallelEngine(),
+            SpammerParallelEngineType.Threads => new ThreadsParallelEngine(),
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+        };
+    }
+
+    public static IDbContextOperationStrategy CreateDbContextStrategy(this DbContextStrategyType type, ISimpleDataCreationStrategy<string> dataCreationStrategy)
+    {
+        return type switch
+        {
+            DbContextStrategyType.SequentialEntity => new SequentialEntityInsertStrategy(new SequentialEntityInsertStrategyOptions()
+            {
+                DataCreationStrategy = dataCreationStrategy
+            }),
+            DbContextStrategyType.StringEntity => new StringEntityInsertStrategy(new StringEntityInsertStrategyOptions()
+            {
+                DataCreationStrategy = dataCreationStrategy
+            }),
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+        };
+    }
+    
+    public static ISpammerStrategy CreateStrategy(this PostgresStrategyType type, string conn, ISimpleDataCreationStrategy<string> dataCreationStrategy)
+    {
+        return type switch
+        {
+            PostgresStrategyType.DapperInsertSeqEntity => new PostgresDapperSequentialStrategy(conn, dataCreationStrategy),
+            PostgresStrategyType.DapperInsertStringEntity => new PostgresDapperGuidStrategy(new PostgresDapperGuidStrategyOptions()
+            {
+                Conn = conn,
+                DataCreationStrategy = dataCreationStrategy
+            }),
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+        };
+    }
 }
