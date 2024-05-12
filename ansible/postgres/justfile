@@ -1,5 +1,8 @@
 ansible:
     just -f ../justfile ansible postgres
 
+ansible-config:
+    just -f ../justfile ansible postgres "--tags "config""
+
 microk8s-config:
     just -f ../justfile microk8s-config postgres

@@ -5,3 +5,32 @@
   tasks:
     - name: Include common tasks
       include_tasks: ../common_tasks.yaml
+    
+    - name: Add postgres repo
+      block:
+        - name: Download signing key
+          ansible.builtin.get_url:
+            url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+            dest: /etc/apt/keyrings/postgresrepo.asc
+
+        - name: Add repo
+          apt_repository:
+            repo: deb [signed-by=/etc/apt/keyrings/postgresrepo.asc] http://apt.postgresql.org/pub/repos/apt jammy-pgdg main
+    
+    - name: Install postgres and its deps
+      apt:
+        name:
+        - postgresql-16
+        - postgresql-contrib-16
+        - postgresql-16-dbgsym
+    
+    - name: Configure postgres config
+      blockinfile: 
+        insertafter: "Add settings for extensions here"
+        dest: /etc/postgresql/16/main/postgresql.conf
+        append_newline: true
+        block: "{{ item }}"
+      with_items:
+      - "{{lookup('ansible.builtin.file', './postgres-config.ini') }}"
+      tags:
+      - config
