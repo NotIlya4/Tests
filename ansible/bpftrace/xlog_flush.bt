@@ -1,0 +1,11 @@
+uprobe:/usr/lib/postgresql/16/bin/postgres:XLogFlush
+{
+        @begin[pid] = nsecs;
+}
+
+uretprobe:/usr/lib/postgresql/16/bin/postgres:XLogFlush
+{
+        $lambda = (nsecs - @begin[pid]) / 1000;
+
+        @hist = lhist($lambda, 0, 3000, 100);
+}

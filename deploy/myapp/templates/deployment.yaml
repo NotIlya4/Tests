@@ -42,8 +42,6 @@ spec:
             value: {{ .Values.default_loglevel }}
           - name: DOTNET_DiagnosticPorts
             value: /diag/dotnet-monitor.sock
-          - name: DOTNET_ThreadPool_ThreadsToKeepAlive
-            value: '300'
           ports:
           - containerPort: 5000
           volumeMounts:

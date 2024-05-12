@@ -21,10 +21,17 @@ primary:
       memory: 2Gi
   persistence:
     size: 100Gi
+  podSecurityContext:
+    fsGroup: 0
   containerSecurityContext:
     allowPrivilegeEscalation: true
     privileged: true
     runAsNonRoot: false
+    runAsUser: 0
+    runAsGroup: 0
+    readOnlyRootFilesystem: false
+    capabilities:
+      add: ["ALL"]
 
 auth:
   postgresPassword: pgpass

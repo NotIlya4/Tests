@@ -46,7 +46,7 @@ public class Spammer(SpammerOptions options)
                         try
                         {
                             await DecorateWithMetrics(
-                                context => options.SpammerStrategy.Execute(context, cancellationToken),
+                                async context => await options.SpammerStrategy.Execute(context, cancellationToken),
                                 new RunnerExecutionContext()
                                 {
                                     CurrentExecution = currentRun,

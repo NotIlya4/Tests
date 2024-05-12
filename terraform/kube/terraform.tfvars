@@ -1,9 +1,9 @@
 zone = "ru-central1-b"
 folder_id = "b1g1go57602tvtunmuro"
 
-name = "test1"
+name = "kube"
 
 instance_resources = {
-  cores = 32
-  memory = 32
+  cores = 20
+  memory = 20
 }

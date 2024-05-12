@@ -3,5 +3,6 @@
 public enum PostgresStrategyType
 {
     DapperInsertStringEntity,
-    DapperInsertSeqEntity
+    DapperInsertSeqEntity,
+    DapperSelect
 }

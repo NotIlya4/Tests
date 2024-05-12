@@ -40,7 +40,7 @@ releases:
     chart: bitnami/postgresql
     timeout: 999
     disableValidationOnInstall: true
-    installed: true
+    installed: false
     values:
     - ./values/postgres-values.yaml
   

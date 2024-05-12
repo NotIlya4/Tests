@@ -1,10 +1,10 @@
-apply:
-    terraform init -upgrade
-    terraform apply -var-file="terraform.tfvars" -auto-approve
+apply path:
+    terraform -chdir="./{{path}}" init -upgrade
+    terraform -chdir="./{{path}}" apply -var-file="terraform.tfvars" -auto-approve
 
-destroy:
-    terraform init -upgrade
-    terraform destroy -auto-approve
+destroy path:
+    terraform -chdir="./{{path}}" init -upgrade
+    terraform -chdir="./{{path}}" destroy -auto-approve
 
-ssh:
-    ssh -o StrictHostKeychecking=no ubuntu@$(cat ./output/nat_ip_address.txt) -i ./output/ssh.key
+ssh path:
+    ssh -o StrictHostKeychecking=no ubuntu@$(cat ./{{path}}/.output/nat_ip_address.txt) -i ./{{path}}/.output/ssh.key

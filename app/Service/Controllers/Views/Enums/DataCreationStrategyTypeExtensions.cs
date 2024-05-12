@@ -42,7 +42,7 @@ public static class DataCreationStrategyTypeExtensions
         };
     }
     
-    public static ISpammerStrategy CreateStrategy(this PostgresStrategyType type, string conn, ISimpleDataCreationStrategy<string> dataCreationStrategy)
+    public static ISpammerStrategy CreateStrategy(this PostgresStrategyType type, string conn, ISimpleDataCreationStrategy<string> dataCreationStrategy, int throttleMs)
     {
         return type switch
         {
@@ -52,6 +52,7 @@ public static class DataCreationStrategyTypeExtensions
                 Conn = conn,
                 DataCreationStrategy = dataCreationStrategy
             }),
+            PostgresStrategyType.DapperSelect => new PostgresDapperSelectStrategy(conn, throttleMs),
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
         };
     }

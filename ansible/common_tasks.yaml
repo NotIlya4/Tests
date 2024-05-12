@@ -1,0 +1,63 @@
+# https://github.com/bpftrace/bpftrace/issues/954#issuecomment-1325739243
+- name: Add ddebs1
+  apt_repository:
+    repo: deb http://ddebs.ubuntu.com jammy main restricted universe multiverse
+
+# https://github.com/bpftrace/bpftrace/issues/954#issuecomment-1325739243
+- name: Add ddebs2
+  apt_repository:
+    repo: deb http://ddebs.ubuntu.com jammy-updates main restricted universe multiverse
+
+# https://github.com/bpftrace/bpftrace/issues/954#issuecomment-1325739243
+- name: Add ddebs3
+  apt_repository:
+    repo: deb http://ddebs.ubuntu.com jammy-proposed main restricted universe multiverse
+
+- name: Update and upgrade apt packages
+  become: true
+  apt:
+    upgrade: yes
+    update_cache: yes
+
+- name: Install sysstat
+  apt:
+    name: sysstat
+
+- name: Install fio
+  apt:
+    name: fio
+
+- name: Copy fio test
+  ansible.builtin.copy:
+    src: ../fio/test.fio
+    dest: ./
+
+- name: Install perf
+  apt:
+    name: linux-tools-5.15.0-105-generic
+
+- name: Install blktrace
+  apt:
+    name: blktrace
+
+- name: Install bpftrace
+  apt:
+    name: bpftrace
+
+# https://github.com/bpftrace/bpftrace/issues/954#issuecomment-1325739243
+- name: Install ubuntu-dbgsym-keyring
+  apt:
+    name: ubuntu-dbgsym-keyring
+
+# https://github.com/bpftrace/bpftrace/issues/954#issuecomment-1325739243
+- name: Install bpftrace-dbgsym
+  apt:
+    name: bpftrace-dbgsym
+
+- name: Install stress
+  apt:
+    name: stress
+
+- name: Install cgtools
+  apt:
+    name: cgroup-tools

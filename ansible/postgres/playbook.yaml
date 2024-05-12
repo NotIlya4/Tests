@@ -1,0 +1,7 @@
+- name: Install packages
+  hosts: nodes
+  become: true
+
+  tasks:
+    - name: Include common tasks
+      include_tasks: ../common_tasks.yaml

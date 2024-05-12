@@ -1,0 +1,8 @@
+apply:
+    just -f ../justfile apply kube
+
+destroy:
+    just -f ../justfile destroy kube
+
+ssh:
+    just -f ../justfile ssh kube

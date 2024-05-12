@@ -1,0 +1,8 @@
+apply:
+    just -f ../justfile apply postgres
+
+destroy:
+    just -f ../justfile destroy postgres
+
+ssh:
+    just -f ../justfile ssh postgres

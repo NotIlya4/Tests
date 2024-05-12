@@ -72,7 +72,8 @@ public class TestsController
         {
             _spammerBuilder.WithSpammerStrategy(optionsView.PostgresStrategyType.CreateStrategy(
                 _postgresDependencyBox.Conn,
-                optionsView.DataCreationStrategyOptions.CreateStrategy()));
+                optionsView.DataCreationStrategyOptions.CreateStrategy(),
+                optionsView.ThrottleMs));
         }
         
         var spammer = builder.Build();

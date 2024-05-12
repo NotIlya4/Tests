@@ -8,4 +8,7 @@ public class PostgresStrategyOptionsView : DbContextStrategyOptionsView
     public bool IsDbContextStrategy { get; set; }
 
     public PostgresStrategyType PostgresStrategyType { get; set; }
+
+    [DefaultValue(0)]
+    public int ThrottleMs { get; set; }
 }

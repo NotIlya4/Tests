@@ -1,0 +1,23 @@
+- name: Install packages
+  hosts: nodes
+  become: true
+
+  tasks:
+    - name: Include common tasks
+      include_tasks: ../common_tasks.yaml
+
+    - name: Install microk8s
+      register: microk8s
+      snap:
+        name: microk8s
+        state: present
+        classic: true
+      when: true
+    
+    - name: Enable cert-manager addon in microk8s
+      command: microk8s enable cert-manager
+      when: microk8s is not skipped
+
+    - name: Enable hostpath-storage addon in microk8s
+      command: microk8s enable hostpath-storage
+      when: microk8s is not skipped

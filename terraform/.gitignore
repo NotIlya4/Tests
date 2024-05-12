@@ -1,6 +1,0 @@
-/output
-*.tfstate
-*.tfstate.backup
-/.terraform
-*.lock.hcl
-*.lock.info

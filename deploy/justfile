@@ -44,18 +44,3 @@ port-forward:
   kubectl port-forward svc/monitoring-kube-prometheus-prometheus -n monitoring 9090:9090 & \
   kubectl port-forward svc/postgres -n postgres 5432:5432 & \
   kubectl port-forward svc/nginx -n nginx 3001:3001
-
-delete-myapp:
-  helm uninstall myapp -n myapp
-
-update-myapp:
-  just -f ../app/justfile update
-  helmfile apply
-
-@grafana-backup:
-  PGPASSWORD="pgpass" pg_dump --port=31331 --username=postgres --dbname=grafana --no-password --file=grafana_dump.sql
-  echo ✅ Dump successful!
-
-@grafana-restore:
-  PGPASSWORD="pgpass" psql --port=31331 --dbname=grafana -U postgres < grafana_dump.sql
-  echo ✅ Restore successful!
