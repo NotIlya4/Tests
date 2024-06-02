@@ -23,6 +23,16 @@
         - postgresql-16
         - postgresql-contrib-16
         - postgresql-16-dbgsym
+
+    - name: Add pg_hba entry
+      blockinfile: 
+        append_newline: true
+        dest: /etc/postgresql/16/main/pg_hba.conf
+        block: host all all 0.0.0.0/0 md5
+    
+    - name: Override postgres password
+      command:
+        cmd: sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'pgpass';"
     
     - name: Configure postgres config
       blockinfile: 
@@ -32,5 +42,12 @@
         block: "{{ item }}"
       with_items:
       - "{{lookup('ansible.builtin.file', './postgres-config.ini') }}"
+      tags:
+      - config
+    
+    - name: Restart postgres
+      systemd_service:
+        name: postgresql
+        state: restarted
       tags:
       - config

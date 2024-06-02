@@ -4,9 +4,7 @@ using Spam;
 
 namespace Service;
 
-public class PostgresDapperSelectStrategy(
-    string conn,
-    int throttleMs): ISpammerStrategy
+public class PostgresDapperSelectStrategy(string conn, SelectStrategyType selectStrategyType, int limit): ISpammerStrategy
 {
     public async Task Prepare(int runnerIndex, Dictionary<object, object> runnerData, CancellationToken cancellationToken)
     {
@@ -18,9 +16,17 @@ public class PostgresDapperSelectStrategy(
 
     public async Task Execute(RunnerExecutionContext context, CancellationToken cancellationToken)
     {
-        await Task.Delay(throttleMs, cancellationToken);
         var id = ((Random)context.Data["random"]).Next((int)context.Data["count"]);
         var connection = (NpgsqlConnection)context.Data["connection"];
-        await connection.ExecuteAsync($"SELECT * FROM \"SequentialEntities\" WHERE \"Id\" = {id}");
+
+        if (selectStrategyType == SelectStrategyType.RandomSingle)
+        {
+            await connection.ExecuteAsync($"SELECT * FROM \"SequentialEntities\" WHERE \"Id\" = {id}");
+        }
+        
+        if (selectStrategyType == SelectStrategyType.All)
+        {
+            await connection.ExecuteAsync($"SELECT * FROM \"SequentialEntities\" LIMIT {limit}");
+        }
     }
 }

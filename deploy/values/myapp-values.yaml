@@ -5,7 +5,8 @@ sql_server:
   host: sql-server.sql-server,1433
   database: Test10
 postgres:
-  host: test1.ru-central1.internal
+  # host: postgres.ru-central1.internal
+  host: postgres.postgres
   port: 5432
 myapp:
   parallel_executions: 20

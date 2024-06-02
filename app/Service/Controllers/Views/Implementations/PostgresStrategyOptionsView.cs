@@ -9,6 +9,7 @@ public class PostgresStrategyOptionsView : DbContextStrategyOptionsView
 
     public PostgresStrategyType PostgresStrategyType { get; set; }
 
-    [DefaultValue(0)]
-    public int ThrottleMs { get; set; }
+    public SelectStrategyType SelectStrategyType { get; set; }
+    
+    public int Limit { get; set; }
 }

@@ -14,7 +14,7 @@ resource "local_file" "ssh_key" {
 }
 
 data "yandex_vpc_subnet" "subnet" {
-  subnet_id = "e2ldnruf5jc90sjkl4io"
+  subnet_id = var.subnet_id
 }
 
 data "yandex_compute_image" "ubuntu" {
@@ -42,8 +42,8 @@ resource "yandex_compute_instance" "instance" {
   boot_disk {
     auto_delete = true
     initialize_params {
-      size     = 186
-      type     = "network-ssd-nonreplicated"
+      size     = var.instance_resources.disk.size
+      type     = var.instance_resources.disk.type
       image_id = data.yandex_compute_image.ubuntu.id
     }
   }

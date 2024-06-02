@@ -9,6 +9,7 @@ public static class DataCreationStrategyTypeExtensions
         return type switch
         {
             DataCreationStrategyType.Guid => new GuidDataCreationStrategy(),
+            DataCreationStrategyType.SeqGuid => new SeqGuidDataCreationStrategy(),
             DataCreationStrategyType.FixedLengthString => new FixedLengthStringDataCreationStrategy(
                 fixedLengthStringLength),
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
@@ -42,7 +43,7 @@ public static class DataCreationStrategyTypeExtensions
         };
     }
     
-    public static ISpammerStrategy CreateStrategy(this PostgresStrategyType type, string conn, ISimpleDataCreationStrategy<string> dataCreationStrategy, int throttleMs)
+    public static ISpammerStrategy CreateStrategy(this PostgresStrategyType type, string conn, ISimpleDataCreationStrategy<string> dataCreationStrategy, SelectStrategyType selectStrategyType, int limit)
     {
         return type switch
         {
@@ -52,7 +53,7 @@ public static class DataCreationStrategyTypeExtensions
                 Conn = conn,
                 DataCreationStrategy = dataCreationStrategy
             }),
-            PostgresStrategyType.DapperSelect => new PostgresDapperSelectStrategy(conn, throttleMs),
+            PostgresStrategyType.DapperSelect => new PostgresDapperSelectStrategy(conn, selectStrategyType, limit),
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
         };
     }

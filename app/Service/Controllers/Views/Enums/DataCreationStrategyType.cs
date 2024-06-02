@@ -3,5 +3,6 @@
 public enum DataCreationStrategyType
 {
     Guid,
+    SeqGuid,
     FixedLengthString
 }

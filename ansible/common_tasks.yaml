@@ -1,17 +1,17 @@
 # https://github.com/bpftrace/bpftrace/issues/954#issuecomment-1325739243
 - name: Add ddebs1
   apt_repository:
-    repo: deb http://ddebs.ubuntu.com jammy main restricted universe multiverse
+    repo: deb [trusted=yes] http://ddebs.ubuntu.com jammy main restricted universe multiverse
 
 # https://github.com/bpftrace/bpftrace/issues/954#issuecomment-1325739243
 - name: Add ddebs2
   apt_repository:
-    repo: deb http://ddebs.ubuntu.com jammy-updates main restricted universe multiverse
+    repo: deb [trusted=yes] http://ddebs.ubuntu.com jammy-updates main restricted universe multiverse
 
 # https://github.com/bpftrace/bpftrace/issues/954#issuecomment-1325739243
 - name: Add ddebs3
   apt_repository:
-    repo: deb http://ddebs.ubuntu.com jammy-proposed main restricted universe multiverse
+    repo: deb [trusted=yes] http://ddebs.ubuntu.com jammy-proposed main restricted universe multiverse
 
 - name: Install apt packages
   apt:

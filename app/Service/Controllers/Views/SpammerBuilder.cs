@@ -54,6 +54,12 @@ public class SpammerBuilder(
         _spammerStrategy = spammerStrategy;
         return this;
     }
+    
+    public SpammerBuilder WithParallelEngine(ISpammerParallelEngine spammerParallelEngine)
+    {
+        _spammerParallelEngine = spammerParallelEngine;
+        return this;
+    }
 
     public SpammerBuilder WithParallelRunners(int parallelRunners)
     {
