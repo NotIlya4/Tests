@@ -39,7 +39,7 @@ module "node" {
       memory = 4
       disk = {
         size = 186
-        type = "network-ssd-nonreplicated"
+        type = "network-hdd"
       }
     }
 }
