@@ -13,10 +13,6 @@
         state: present
         classic: true
       when: true
-    
-    - name: Enable cert-manager addon in microk8s
-      command: microk8s enable cert-manager
-      when: microk8s is not skipped
 
     - name: Enable hostpath-storage addon in microk8s
       command: microk8s enable hostpath-storage

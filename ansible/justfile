@@ -1,12 +1,21 @@
 set shell := ["cmd.exe", "/c"]
+outputPath := "../.output"
 
-ansible path args="":
-    python ./misc/build_inventory.py {{path}}
-    wsl.exe -- export ANSIBLE_HOST_KEY_CHECKING=False; /root/.local/bin/ansible-playbook ./{{path}}/playbook.yaml -i ./{{path}}/inventory.ini.generated {{args}}
+ansible name args="":
+    wsl.exe -- export ANSIBLE_HOST_KEY_CHECKING=False; /root/.local/bin/ansible-playbook ./{{name}}/playbook.yaml -i {{outputPath}}/inventory.ini.generated {{args}}
 
 microk8s-config path:
     just -f {{justfile_directory()}}\justfile --shell sh microk8s-config-private {{path}}
 
+microk8s-node-config-apply name:
+    python ./misc/microk8s_config_specific.py --name {{name}} --ip-path {{outputPath}}/{{name}}/nat_ip_address.txt
+
+dns-lb-record name:
+    python ./misc/technitium_dns_record_specific.py --ip-path {{outputPath}}/{{name}}/lb_external_address.txt
+
+build-node-inventory name:
+    python ./misc/build_single_node_inventory.py --ip-path {{name}}/nat_ip_address.txt --ssh-key-path {{name}}/ssh.key
+
 [private]
 microk8s-config-private path:
-    ssh -o StrictHostKeychecking=no ubuntu@$(cat ../terraform/{{path}}/.output/nat_ip_address.txt) -i ../terraform/{{path}}/.output/ssh.key "sudo microk8s config"
+    ssh -o StrictHostKeychecking=no ubuntu@$(cat {{outputPath}}/{{path}}/nat_ip_address.txt) -i {{outputPath}}/{{path}}/ssh.key "sudo microk8s config"

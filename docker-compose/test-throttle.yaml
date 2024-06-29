@@ -1,0 +1,21 @@
+services:
+
+  myapp:
+    ports: 
+      - "5000:5000"
+    image: notilya4/db-tests.spammer:latest
+    environment:
+      ASPNETCORE_URLS: http://*:5000
+      NginxAddress: http://nginx
+      Logging__LogLevel__Default: Warning
+    privileged: true
+  
+  nginx:
+    image: nginx:latest
+    hostname: nginx
+    container_name: nginx
+    privileged: true
+    labels:
+      org.label-schema.tc.enabled: "1"
+      org.label-schema.tc.rate: "1mbps"
+      org.label-schema.tc.ceil: "10mbps"

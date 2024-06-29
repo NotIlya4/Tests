@@ -1,5 +1,0 @@
-ansible:
-    just -f ../justfile ansible kube
-
-microk8s-config:
-    just -f ../justfile microk8s-config kube

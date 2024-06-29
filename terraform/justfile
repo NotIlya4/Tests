@@ -1,3 +1,5 @@
+outputPath := "../.output"
+
 apply path:
     terraform -chdir="./{{path}}" init -upgrade
     terraform -chdir="./{{path}}" apply -auto-approve
@@ -7,4 +9,4 @@ destroy path:
     terraform -chdir="./{{path}}" destroy -auto-approve
 
 ssh path:
-    ssh -o StrictHostKeychecking=no ubuntu@$(cat ./{{path}}/.output/nat_ip_address.txt) -i ./{{path}}/.output/ssh.key
+    ssh -o StrictHostKeychecking=no ubuntu@$(cat {{outputPath}}/{{path}}/nat_ip_address.txt) -i {{outputPath}}/{{path}}/ssh.key

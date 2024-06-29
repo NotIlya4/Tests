@@ -36,6 +36,12 @@ microk8s-lite:
 apply:
   helmfile apply --concurrency=1
 
+apply-kafka:
+  helmfile apply --concurrency=1 -f helmfile.kafka.yaml
+
+apply-dnstest:
+  helmfile apply --concurrency=1 -f helmfile.dnstest.yaml
+
 port-forward:
   kubectl port-forward svc/monitoring-grafana -n monitoring 3000:3000 & \
   kubectl port-forward svc/myapp -n myapp 5001:5001 52323:52323 & \

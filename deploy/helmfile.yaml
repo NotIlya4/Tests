@@ -18,14 +18,6 @@ releases:
     values:
     - ./values/sql-server-values.yaml
 
-  - name: monitoring-postgres
-    namespace: monitoring-postgres
-    chart: bitnami/postgresql
-    timeout: 999
-    installed: false
-    values:
-    - ./values/monitoring-postgres-values.yaml
-
   - name: monitoring
     namespace: monitoring
     chart: prometheus/kube-prometheus-stack

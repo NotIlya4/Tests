@@ -1,0 +1,54 @@
+repositories:
+  - name: prometheus
+    url: https://prometheus-community.github.io/helm-charts
+  - name: bitnami
+    url: https://charts.bitnami.com/bitnami
+
+releases:
+  - name: monitoring
+    namespace: monitoring
+    chart: prometheus/kube-prometheus-stack
+    disableValidationOnInstall: true
+    timeout: 999
+    installed: true
+    values:
+    - ./values/monitoring-values.yaml
+
+  - name: kafka
+    namespace: kafka
+    chart: bitnami/kafka
+    installed: true
+    values:
+    - kraft:
+        clusterId: jh08hbDufMo4Pr454I4zL1
+      controller:
+        podAnnotations:
+          kubernetes.io/ingress-bandwidth: '1000000'
+          kubernetes.io/egress-bandwidth: '1000000'
+        resourcesPreset: none
+      externalAccess:
+        enabled: true
+        controller:
+          forceExpose: true
+          service:
+            type: NodePort
+            domain: 84.201.155.179
+            externalIPs:
+            - 84.201.155.179
+            - 84.201.155.179
+            - 84.201.155.179
+            nodePorts:
+            - 30325
+            - 30672
+            - 30336
+      listeners:
+        client:
+          protocol: PLAINTEXT
+        controller:
+          protocol: PLAINTEXT
+        interbroker:
+          protocol: PLAINTEXT
+        external:
+          protocol: PLAINTEXT
+      # extraConfig:
+      #   replica.lag.time.max.ms: 500
