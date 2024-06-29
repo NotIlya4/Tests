@@ -29,74 +29,40 @@ provider "yandex" {
   zone = local.zone
 }
 
-module "node" {
-    source = "../modules/node"
+module "node1" {
+  source = "../modules/node"
 
-    name = local.name
-    folder_id = local.folder_id
-    zone = local.zone
-    subnet_id = local.subnet_id
-    instance_resources = {
-      cores = 16
-      memory = 16
-      disk = {
-        size = 186
-        type = "network-ssd-nonreplicated"
-      }
+  name = "${local.name}-node1"
+  folder_id = local.folder_id
+  zone = local.zone
+  subnet_id = local.subnet_id
+  instance_resources = {
+    cores = 16
+    memory = 16
+    disk = {
+      size = 186
+      type = "network-ssd-nonreplicated"
     }
+  }
 }
 
-resource "yandex_vpc_address" "lb_address" {
+module "lb" {
+  source = "../modules/load-balancer"
+
   name = "${local.name}-lb"
+  folder_id = local.folder_id
+  zone = local.zone
+  subnet_id = local.subnet_id
 
-  external_ipv4_address {
-    zone_id = local.zone
-  }
-}
-
-resource "yandex_lb_target_group" "lb_group" {
-  name      = local.name
-
-  target {
-    subnet_id = local.subnet_id
-    address   = module.node.yandex_compute_instance.network_interface.0.ip_address
-  }
-}
-
-resource "yandex_lb_network_load_balancer" "lb" {
-  name = local.name
-
-  listener {
-    name = "${local.name}-http"
-    port = 80
-    target_port = 32160
-    external_address_spec {
-      address = yandex_vpc_address.lb_address.external_ipv4_address[0].address
+  target_address = module.node1.private_ip_address
+  port_mappings = {
+    "http" = {
+      lb_port = 80
+      target_port = 32160
+    }
+    "https" = {
+      lb_port = 443
+      target_port = 30643
     }
   }
-
-  listener {
-    name = "${local.name}-https"
-    port = 443
-    target_port = 30643
-    external_address_spec {
-      address = yandex_vpc_address.lb_address.external_ipv4_address[0].address
-    }
-  }
-
-  attached_target_group {
-    target_group_id = yandex_lb_target_group.lb_group.id
-
-    healthcheck {
-      name = local.name
-      tcp_options {
-        port = 32160
-      }
-    }
-  }
-}
-
-resource "local_file" "lb_external_address" {
-  filename = "${local.path}/lb_external_address.txt"
-  content  = yandex_vpc_address.lb_address.external_ipv4_address[0].address
 }
