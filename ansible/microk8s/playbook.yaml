@@ -1,11 +1,7 @@
 - name: Install packages
-  hosts: nodes
+  hosts: all
   become: true
-
   tasks:
-    - name: Include common tasks
-      include_tasks: ../common_tasks.yaml
-
     - name: Install microk8s
       register: microk8s
       snap:

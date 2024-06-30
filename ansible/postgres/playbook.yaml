@@ -1,53 +1,50 @@
 - name: Install packages
-  hosts: nodes
+  hosts: all
   become: true
 
   tasks:
-    - name: Include common tasks
-      include_tasks: ../common_tasks.yaml
-    
-    - name: Add postgres repo
-      block:
-        - name: Download signing key
-          ansible.builtin.get_url:
-            url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
-            dest: /etc/apt/keyrings/postgresrepo.asc
+  - name: Add postgres repo
+    block:
+      - name: Download signing key
+        ansible.builtin.get_url:
+          url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          dest: /etc/apt/keyrings/postgresrepo.asc
 
-        - name: Add repo
-          apt_repository:
-            repo: deb [signed-by=/etc/apt/keyrings/postgresrepo.asc] http://apt.postgresql.org/pub/repos/apt jammy-pgdg main
-    
-    - name: Install postgres and its deps
-      apt:
-        name:
-        - postgresql-16
-        - postgresql-contrib-16
-        - postgresql-16-dbgsym
+      - name: Add repo
+        apt_repository:
+          repo: deb [signed-by=/etc/apt/keyrings/postgresrepo.asc] http://apt.postgresql.org/pub/repos/apt jammy-pgdg main
+  
+  - name: Install postgres and its deps
+    apt:
+      name:
+      - postgresql-16
+      - postgresql-contrib-16
+      - postgresql-16-dbgsym
 
-    - name: Add pg_hba entry
-      blockinfile: 
-        append_newline: true
-        dest: /etc/postgresql/16/main/pg_hba.conf
-        block: host all all 0.0.0.0/0 md5
-    
-    - name: Override postgres password
-      command:
-        cmd: sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'pgpass';"
-    
-    - name: Configure postgres config
-      blockinfile: 
-        insertafter: "Add settings for extensions here"
-        dest: /etc/postgresql/16/main/postgresql.conf
-        append_newline: true
-        block: "{{ item }}"
-      with_items:
-      - "{{lookup('ansible.builtin.file', './postgres-config.ini') }}"
-      tags:
-      - config
-    
-    - name: Restart postgres
-      systemd_service:
-        name: postgresql
-        state: restarted
-      tags:
-      - config
+  - name: Add pg_hba entry
+    blockinfile: 
+      append_newline: true
+      dest: /etc/postgresql/16/main/pg_hba.conf
+      block: host all all 0.0.0.0/0 md5
+  
+  - name: Override postgres password
+    command:
+      cmd: sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'pgpass';"
+  
+  - name: Configure postgres config
+    blockinfile: 
+      insertafter: "Add settings for extensions here"
+      dest: /etc/postgresql/16/main/postgresql.conf
+      append_newline: true
+      block: "{{ item }}"
+    with_items:
+    - "{{lookup('ansible.builtin.file', './postgres-config.ini') }}"
+    tags:
+    - config
+  
+  - name: Restart postgres
+    systemd_service:
+      name: postgresql
+      state: restarted
+    tags:
+    - config

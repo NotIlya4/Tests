@@ -1,0 +1,8 @@
+python command:
+    ./.venv/Scripts/python.exe {{command}}
+
+pip-freeze:
+    ./.venv/Scripts/pip.exe freeze > requirements.txt
+
+pip-install:
+    ./.venv/Scripts/pip.exe install -r requirements.txt

@@ -1,23 +1,15 @@
 locals {
-  path = "../../.output/${var.name}"
   name = "${var.name}-node"
-}
-
-resource "tls_private_key" "ssh" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
-}
-
-data "yandex_vpc_subnet" "subnet" {
-  subnet_id = var.subnet_id
+  path = var.name
 }
 
 data "yandex_compute_image" "ubuntu" {
-  family = "ubuntu-2204-lts-oslogin"
+  family = "ubuntu-2204-lts"
 }
 
 resource "yandex_vpc_address" "address" {
   name = local.name
+  folder_id = var.folder_id
 
   external_ipv4_address {
     zone_id = var.zone
@@ -26,6 +18,9 @@ resource "yandex_vpc_address" "address" {
 
 resource "yandex_compute_instance" "instance" {
   name                      = local.name
+  folder_id = var.folder_id
+  zone = var.zone
+
   allow_stopping_for_update = true
   hostname = local.name
 
@@ -44,7 +39,7 @@ resource "yandex_compute_instance" "instance" {
   }
 
   network_interface {
-    subnet_id      = data.yandex_vpc_subnet.subnet.id
+    subnet_id      = var.subnet_id
     nat            = true
     nat_ip_address = yandex_vpc_address.address.external_ipv4_address[0].address
   }
@@ -54,7 +49,20 @@ resource "yandex_compute_instance" "instance" {
   }
 
   metadata = {
-    ssh-keys = "ubuntu:${tls_private_key.ssh.public_key_openssh}"
+    user-data = <<-EOT
+    #cloud-config
+    users:
+      - name: ubuntu
+        gecos: User for ansible connection
+        sudo: ALL=(ALL) NOPASSWD:ALL
+        shell: /bin/bash
+        ssh-authorized-keys:
+          - ${var.ssh_pub}
+
+    package_update: true
+    package_upgrade: true
+    package_reboot_if_required: true
+    EOT
   }
 }
 

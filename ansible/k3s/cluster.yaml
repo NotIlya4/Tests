@@ -1,0 +1,8 @@
+- name: Build a cluster with a single control node
+  hosts: nodes
+  vars:
+    k3s_become: true
+    ansible_user: ubuntu
+    ansible_python_interpreter: /usr/bin/python3
+  roles:
+    - role: xanmanning.k3s

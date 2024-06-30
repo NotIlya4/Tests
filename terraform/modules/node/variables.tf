@@ -1,21 +1,17 @@
 variable "zone" {
   type = string
-  default = "ru-central1-b"
 }
 
 variable "subnet_id" {
   type = string
-  default = "e2ldnruf5jc90sjkl4io"
 }
 
 variable "folder_id" {
   type = string
-  default = "b1g1go57602tvtunmuro"
 }
 
 variable "name" {
   type = string
-  default = "test1"
 }
 
 variable "instance_resources" {
@@ -35,4 +31,8 @@ variable "instance_resources" {
       size = 186
     }
   }
+}
+
+variable "ssh_pub" {
+  type = string
 }

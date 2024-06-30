@@ -1,0 +1,42 @@
+- name: Install ansible
+  hosts: all
+  become: true
+  roles:
+    - role: geerlingguy.ansible
+
+- name: Copy files
+  hosts: all
+  become: true
+  vars:
+    output_path: ../../.output
+
+  tasks:
+  - name: Copy ssh.key file
+    ansible.builtin.copy:
+      src: "{{output_path}}/ssh.key"
+      dest: /ssh.key
+      mode: '0700'
+
+  - name: Copy cluster.yaml file
+    ansible.builtin.copy:
+      src: "./cluster.yaml"
+      dest: /cluster.yaml
+
+  - name: Copy k3s-inventory.yaml file
+    ansible.builtin.copy:
+      src: "{{output_path}}/k3s-inventory.yaml"
+      dest: /k3s-inventory.yaml
+  
+  - name: Copy requirements.yaml file
+    ansible.builtin.copy:
+      src: "./requirements.yaml"
+      dest: /requirements.yaml
+  
+  - name: Install ansible dependencies
+    command: sudo ansible-galaxy install -r /requirements.yaml
+  
+  - name: Run ansible
+    command: sudo ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i /k3s-inventory.yaml /cluster.yaml
+    register: k3s_ansible_output
+  
+  - debug: err="{{k3s_ansible_output.stderr}}"

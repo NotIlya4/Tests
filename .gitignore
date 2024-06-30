@@ -5,3 +5,4 @@
 **.lock.hcl
 **.lock.info
 **.generated
+.venv

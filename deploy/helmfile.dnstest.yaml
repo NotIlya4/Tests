@@ -8,6 +8,7 @@ releases:
   - name: traefik
     namespace: traefik
     chart: traefik/traefik
+    installed: false
     disableValidationOnInstall: true
     values:
     - service:

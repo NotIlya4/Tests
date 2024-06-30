@@ -1,21 +1,24 @@
-set shell := ["cmd.exe", "/c"]
 outputPath := "../.output"
+pythonPath := "./scripts/.venv/Scripts/python.exe"
 
 ansible name args="":
-    wsl.exe -- export ANSIBLE_HOST_KEY_CHECKING=False; /root/.local/bin/ansible-playbook ./{{name}}/playbook.yaml -i {{outputPath}}/inventory.ini.generated {{args}}
+    powershell.exe -c "wsl.exe -- ANSIBLE_HOST_KEY_CHECKING=False /root/.local/bin/ansible-playbook ./{{name}}/playbook.yaml -i {{outputPath}}/inventory.yaml {{args}}"
 
 microk8s-config path:
-    just -f {{justfile_directory()}}\justfile --shell sh microk8s-config-private {{path}}
+    ssh -o StrictHostKeychecking=no ubuntu@$(cat {{outputPath}}/{{path}}/nat_ip_address.txt) -i {{outputPath}}/ssh.key "sudo kubectl config view"
 
 microk8s-node-config-apply name:
-    python ./misc/microk8s_config_specific.py --name {{name}} --ip-path {{outputPath}}/{{name}}/nat_ip_address.txt
+    {{pythonPath}} ./scripts/microk8s_config_specific.py --name {{name}} --ip-path {{outputPath}}/{{name}}/nat_ip_address.txt
 
 dns-lb-record name:
-    python ./misc/technitium_dns_record_specific.py --ip-path {{outputPath}}/{{name}}/lb_external_address.txt
+    {{pythonPath}} ./scripts/technitium_dns_record_specific.py --name {{name}}
 
-build-node-inventory name:
-    python ./misc/build_single_node_inventory.py --ip-path {{name}}/nat_ip_address.txt --ssh-key-path {{name}}/ssh.key
+inventory name:
+    {{pythonPath}} ./scripts/build_single_node_inventory.py --name {{name}}
 
-[private]
-microk8s-config-private path:
-    ssh -o StrictHostKeychecking=no ubuntu@$(cat {{outputPath}}/{{path}}/nat_ip_address.txt) -i {{outputPath}}/{{path}}/ssh.key "sudo microk8s config"
+k3s master_name worker_names:
+    {{pythonPath}} ./scripts/create_k3s_inventory.py --master-name {{master_name}} --worker-names {{worker_names}}
+    just ansible k3s
+
+apply-kubectl-config name:
+    {{pythonPath}} ./scripts/apply_kubectl_config.py --name {{name}}

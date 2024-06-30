@@ -1,5 +1,3 @@
-outputPath := "../.output"
-
 apply path:
     terraform -chdir="./{{path}}" init -upgrade
     terraform -chdir="./{{path}}" apply -auto-approve
@@ -9,4 +7,4 @@ destroy path:
     terraform -chdir="./{{path}}" destroy -auto-approve
 
 ssh path:
-    ssh -o StrictHostKeychecking=no ubuntu@$(cat {{outputPath}}/{{path}}/nat_ip_address.txt) -i {{outputPath}}/{{path}}/ssh.key
+    ssh -o StrictHostKeychecking=no ubuntu@$(cat $(python ./find_output_folder.py --no-json)/{{path}}/nat_ip_address.txt) -i $(python ./find_output_folder.py --no-json)/ssh.key
