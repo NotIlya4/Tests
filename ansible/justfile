@@ -4,24 +4,22 @@ pythonPath := "./scripts/.venv/Scripts/python.exe"
 ansible name args="":
     powershell.exe -c "wsl.exe -- ANSIBLE_HOST_KEY_CHECKING=False /root/.local/bin/ansible-playbook ./{{name}}/playbook.yaml -i {{outputPath}}/inventory.yaml {{args}}"
 
-dns-lb-record name:
-    {{pythonPath}} ./scripts/technitium_dns_record_specific.py --name {{name}}
-
 node-inventory name:
     {{pythonPath}} ./scripts/write_inventory.py \
         --inventory "$({{pythonPath}} ./scripts/create_simple_inventory.py \
             --ip $({{pythonPath}} ./scripts/read_nat_ip_address.py \
             --name {{name}}))"
 
+k3s name:
+    just k3s-inventory {{name}}
+    just ansible k3s "-e \"nname={{name}}\""
+    just k3s-config {{name}}
+
 k3s-inventory name:
     {{pythonPath}} ./scripts/write_inventory.py \
         --inventory "$({{pythonPath}} ./scripts/create_simple_inventory.py \
             --ip $({{pythonPath}} ./scripts/read_cluster_ip.py \
             --name {{name}}))"
-
-k3s name:
-    just k3s-inventory {{name}}
-    just ansible k3s "-e \"nname={{name}}\""
 
 k3s-config name:
     {{pythonPath}} ./scripts/apply_kubectl_config.py \
@@ -30,3 +28,6 @@ k3s-config name:
         --config "$({{pythonPath}} ./scripts/read_k3s_kubectl_config.py \
             --ip $({{pythonPath}} ./scripts/read_cluster_ip.py \
             --name {{name}}))"
+
+dns-lb-record name:
+    {{pythonPath}} ./scripts/technitium_dns_record_specific.py --name {{name}}
