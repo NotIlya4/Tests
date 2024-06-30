@@ -17,7 +17,7 @@ resource "yandex_vpc_address" "address" {
 }
 
 resource "yandex_compute_instance" "instance" {
-  name                      = local.name
+  name                      = var.name
   folder_id = var.folder_id
   zone = var.zone
 
@@ -68,6 +68,10 @@ resource "yandex_compute_instance" "instance" {
 
 output "yandex_compute_instance" {
   value = yandex_compute_instance.instance
+}
+
+output "name" {
+  value = var.name
 }
 
 output "private_ip_address" {

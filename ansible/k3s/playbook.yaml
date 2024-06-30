@@ -22,14 +22,19 @@
       src: "./cluster.yaml"
       dest: /cluster.yaml
 
+  - name: Create k3s inventory
+    delegate_to: localhost
+    command: python ../scripts/create_remote_k3s_inventory.py --name {{nname}}
+    register: k3s_inventory
+
   - name: Copy k3s-inventory.yaml file
     ansible.builtin.copy:
-      src: "{{output_path}}/k3s-inventory.yaml"
+      content: "{{k3s_inventory.stdout}}"
       dest: /k3s-inventory.yaml
-  
+
   - name: Copy requirements.yaml file
     ansible.builtin.copy:
-      src: "./requirements.yaml"
+      content: "- src: xanmanning.k3s"
       dest: /requirements.yaml
   
   - name: Install ansible dependencies
@@ -38,5 +43,3 @@
   - name: Run ansible
     command: sudo ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i /k3s-inventory.yaml /cluster.yaml
     register: k3s_ansible_output
-  
-  - debug: err="{{k3s_ansible_output.stderr}}"

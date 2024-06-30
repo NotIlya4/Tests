@@ -24,3 +24,7 @@ variable "port_mappings" {
     target_port = number
   }))
 }
+
+variable "health_port" {
+  type = number
+}

@@ -18,10 +18,6 @@ data "command" "yandex_token" {
 locals {
   name = "kube"
   path = "../../.output/${local.name}"
-
-  node1_name = "${local.name}-node1"
-  node2_name = "${local.name}-node2"
-  node3_name = "${local.name}-node3"
 }
 
 provider "yandex" {
@@ -40,17 +36,18 @@ module "node1" {
   source = "../modules/node"
 
   ssh_pub = module.ssh.ssh_pub
-
-  name = local.node1_name
   folder_id = module.yc_defaults.folder.id
   zone = module.yc_defaults.zone_a
   subnet_id = module.yc_defaults.subnet_a.id
+
+  name = "${local.name}-worker1"
+
   instance_resources = {
-    cores = 4
-    memory = 8
+    cores = 16
+    memory = 16
     disk = {
-      size = 100
-      type = "network-hdd"
+      size = 186
+      type = "network-ssd-nonreplicated"
     }
   }
 }
@@ -60,10 +57,12 @@ module "node2" {
 
   ssh_pub = module.ssh.ssh_pub
 
-  name = local.node2_name
   folder_id = module.yc_defaults.folder.id
   zone = module.yc_defaults.zone_a
   subnet_id = module.yc_defaults.subnet_a.id
+
+  name = "${local.name}-worker2"
+
   instance_resources = {
     cores = 16
     memory = 16
@@ -79,10 +78,12 @@ module "node3" {
 
   ssh_pub = module.ssh.ssh_pub
 
-  name = local.node3_name
   folder_id = module.yc_defaults.folder.id
   zone = module.yc_defaults.zone_b
   subnet_id = module.yc_defaults.subnet_b.id
+
+  name = "${local.name}-kafka1"
+
   instance_resources = {
     cores = 16
     memory = 16
@@ -96,12 +97,13 @@ module "node3" {
 module "lb" {
   source = "../modules/load-balancer"
 
-  name = "${local.name}-lb"
+  name = local.name
   folder_id = module.yc_defaults.folder.id
   zone = module.yc_defaults.zone_a
   subnet_id = module.yc_defaults.subnet_a.id
 
   target_address = module.node1.private_ip_address
+  health_port = 6443
   port_mappings = {
     "http" = {
       lb_port = 80
@@ -114,16 +116,31 @@ module "lb" {
   }
 }
 
-module "master_node" {
-  source = "../modules/output-write"
-
-  path = "${local.name}/master-node.txt"
-  value = local.node1_name
-}
-
 module "worker_nodes" {
   source = "../modules/output-write"
 
-  path = "${local.name}/worker-nodes.txt"
-  value = join(",", local.node2_name, local.node3_name)
+  path = "${local.name}/workers.yaml"
+  value = yamlencode({
+    workers = [
+      {
+        name = module.node1.name
+        ip = module.node1.private_ip_address
+      },
+      {
+        name = module.node2.name
+        ip = module.node2.private_ip_address
+      },
+      {
+        name = module.node3.name
+        ip = module.node3.private_ip_address
+      },
+    ]
+  })
+}
+
+module "cluster_ip"{
+  source = "../modules/output-write"
+
+  path = "${local.name}/cluster-ip.txt"
+  value = module.node1.nat_ip_address
 }

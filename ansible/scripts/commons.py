@@ -52,3 +52,11 @@ def read_lb_address(name):
 
 def write_ansible_inventory(value):
     write_output('inventory.yaml', value)
+
+
+def read_workers(name):
+    return read_output(f'{name}/workers.yaml')
+
+
+def read_cluster_ip(name):
+    return read_output(f'{name}/cluster-ip.txt')

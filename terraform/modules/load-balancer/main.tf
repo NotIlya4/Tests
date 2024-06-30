@@ -13,7 +13,7 @@ resource "yandex_vpc_address" "lb_address" {
 }
 
 resource "yandex_lb_target_group" "lb_group" {
-  name      = local.name
+  name      = var.name
   folder_id = var.folder_id
 
   target {
@@ -23,7 +23,7 @@ resource "yandex_lb_target_group" "lb_group" {
 }
 
 resource "yandex_lb_network_load_balancer" "lb" {
-  name = local.name
+  name = var.name
   folder_id = var.folder_id
 
   dynamic "listener" {
@@ -44,7 +44,7 @@ resource "yandex_lb_network_load_balancer" "lb" {
     healthcheck {
       name = local.name
       tcp_options {
-        port = values(var.port_mappings)[0].target_port
+        port = var.health_port
       }
     }
   }
