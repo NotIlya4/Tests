@@ -37,17 +37,18 @@ module "node1" {
 
   ssh_pub = module.ssh.ssh_pub
   folder_id = module.yc_defaults.folder.id
-  zone = module.yc_defaults.zone_a
-  subnet_id = module.yc_defaults.subnet_a.id
+  zone = module.yc_defaults.zone_b
+  subnet_id = module.yc_defaults.subnet_b.id
 
   name = "${local.name}-worker1"
+  nat = true
 
   instance_resources = {
     cores = 16
     memory = 16
     disk = {
-      size = 186
-      type = "network-ssd-nonreplicated"
+      size = 100
+      type = "network-hdd"
     }
   }
 }
@@ -61,11 +62,12 @@ module "node2" {
   zone = module.yc_defaults.zone_a
   subnet_id = module.yc_defaults.subnet_a.id
 
-  name = "${local.name}-worker2"
+  name = "${local.name}-kafka1"
+  nat = true
 
   instance_resources = {
-    cores = 16
-    memory = 16
+    cores = 6
+    memory = 12
     disk = {
       size = 186
       type = "network-ssd-nonreplicated"
@@ -82,11 +84,34 @@ module "node3" {
   zone = module.yc_defaults.zone_b
   subnet_id = module.yc_defaults.subnet_b.id
 
-  name = "${local.name}-kafka1"
+  name = "${local.name}-kafka2"
+  nat = true
 
   instance_resources = {
-    cores = 16
-    memory = 16
+    cores = 6
+    memory = 12
+    disk = {
+      size = 186
+      type = "network-ssd-nonreplicated"
+    }
+  }
+}
+
+module "node4" {
+  source = "../modules/node"
+
+  ssh_pub = module.ssh.ssh_pub
+
+  folder_id = module.yc_defaults.folder.id
+  zone = module.yc_defaults.zone_d
+  subnet_id = module.yc_defaults.subnet_d.id
+
+  name = "${local.name}-kafka3"
+  nat = true
+
+  instance_resources = {
+    cores = 6
+    memory = 12
     disk = {
       size = 186
       type = "network-ssd-nonreplicated"
@@ -99,8 +124,8 @@ module "lb" {
 
   name = local.name
   folder_id = module.yc_defaults.folder.id
-  zone = module.yc_defaults.zone_a
-  subnet_id = module.yc_defaults.subnet_a.id
+  zone = module.node1.zone
+  subnet_id = module.node1.subnet_id
 
   target_address = module.node1.private_ip_address
   health_port = 6443
@@ -133,6 +158,10 @@ module "worker_nodes" {
       {
         name = module.node3.name
         ip = module.node3.private_ip_address
+      },
+      {
+        name = module.node4.name
+        ip = module.node4.private_ip_address
       },
     ]
   })

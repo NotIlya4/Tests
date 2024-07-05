@@ -11,6 +11,8 @@ resource "yandex_vpc_address" "address" {
   name = local.name
   folder_id = var.folder_id
 
+  count = var.nat ? 1 : 0
+
   external_ipv4_address {
     zone_id = var.zone
   }
@@ -20,6 +22,7 @@ resource "yandex_compute_instance" "instance" {
   name                      = var.name
   folder_id = var.folder_id
   zone = var.zone
+  platform_id = "standard-v3"
 
   allow_stopping_for_update = true
   hostname = local.name
@@ -40,8 +43,8 @@ resource "yandex_compute_instance" "instance" {
 
   network_interface {
     subnet_id      = var.subnet_id
-    nat            = true
-    nat_ip_address = yandex_vpc_address.address.external_ipv4_address[0].address
+    nat            = var.nat
+    nat_ip_address = var.nat ? yandex_vpc_address.address[0].external_ipv4_address[0].address : null
   }
 
   scheduling_policy {
@@ -72,6 +75,14 @@ output "yandex_compute_instance" {
 
 output "name" {
   value = var.name
+}
+
+output "zone" {
+  value = var.zone
+}
+
+output "subnet_id" {
+  value = var.subnet_id
 }
 
 output "private_ip_address" {

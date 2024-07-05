@@ -36,3 +36,7 @@ variable "instance_resources" {
 variable "ssh_pub" {
   type = string
 }
+
+variable "nat" {
+  type = bool
+}
