@@ -150,18 +150,35 @@ module "worker_nodes" {
       {
         name = module.node1.name
         ip = module.node1.private_ip_address
+        controller = true
+        labels = {
+          "node-role.kubernetes.io/worker" = true
+          "topology.kubernetes.io/zone" = module.node1.zone
+        }
       },
       {
         name = module.node2.name
         ip = module.node2.private_ip_address
+        labels = {
+          "node-role.kubernetes.io/kafka" = true
+          "topology.kubernetes.io/zone" = module.node2.zone
+        }
       },
       {
         name = module.node3.name
         ip = module.node3.private_ip_address
+        labels = {
+          "node-role.kubernetes.io/kafka" = true
+          "topology.kubernetes.io/zone" = module.node3.zone
+        }
       },
       {
         name = module.node4.name
         ip = module.node4.private_ip_address
+        labels = {
+          "node-role.kubernetes.io/kafka" = true
+          "topology.kubernetes.io/zone" = module.node4.zone
+        }
       },
     ]
   })

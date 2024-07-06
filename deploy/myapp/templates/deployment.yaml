@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: {{ .Release.Name }}
 spec:
-  replicas: {{ .Values.replicas }}
+  replicas: 1
   selector:
     matchLabels:
       app: {{ .Release.Name }}
@@ -17,27 +17,17 @@ spec:
     spec:
       containers:
         - name: {{ .Release.Name }}
-          image: {{ .Values.image }}
+          image: {{ .Values.pod.image }}
           imagePullPolicy: Always
           env:
           - name: ASPNETCORE_URLS
             value: http://*:5000
           - name: SqlServerConn__Server
             value: {{ .Values.sql_server.host }}
-          - name: SqlServerConn__Database
-            value: {{ .Values.sql_server.database }}
           - name: PostgresConn__Host
             value: {{ .Values.postgres.host }}
-          - name: PostgresConn__Port
-            value: {{ .Values.postgres.port | quote }}
-          - name: SqlServerForwardSpammer__ParallelExecutions
-            value: {{ .Values.myapp.parallel_executions | quote }}
-          - name: SqlServerForwardSpammer__RetriesCount
-            value: {{ .Values.myapp.retries_count | quote }}
-          - name: TestName
-            value: {{ .Values.testName }}
           - name: NginxAddress
-            value: {{ .Values.nginx_address }}
+            value: {{ .Values.nginx.address }}
           - name: Logging__LogLevel__Default
             value: {{ .Values.default_loglevel }}
           - name: DOTNET_DiagnosticPorts

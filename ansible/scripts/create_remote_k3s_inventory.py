@@ -1,30 +1,29 @@
 import argparse
-from commons import *
+from commons import read_workers
 import yaml
-
+from jinja2 import Environment, Template
 
 def create_remote_k3s_inventory(workers_raw):
     workers = yaml.safe_load(workers_raw)
 
-    worker_sum_template = ''
-
-    i = 0
-    for worker in workers['workers']:
-        i += 1
-        worker_template = f"""
-        {worker['name']}:
-            ansible_host: {worker['ip']}"""
-        worker_sum_template = worker_sum_template + worker_template
-
-    template = f"""nodes:
-    hosts:{worker_sum_template}
+    template_str = """nodes:
+    hosts:
+        {% for worker in workers %}
+        {{ worker.name }}:
+            ansible_host: {{ worker.ip }}
+        {% endfor %}
     vars:
         ansible_ssh_private_key_file: /ssh.key
         k3s_server:
             disable:
-            - traefik"""
-    return template
+                - traefik"""
 
+    # Create a Jinja2 environment
+    env = Environment(trim_blocks=True, lstrip_blocks=True)
+
+    # Render the template with the workers data
+    template = env.from_string(template_str).render(workers=workers['workers'])
+    return template
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

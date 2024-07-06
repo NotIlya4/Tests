@@ -3,10 +3,6 @@ using Service;
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 
-ThreadPool.SetMaxThreads(
-    builder.Configuration.GetValue<int>("WorkerThreads"),
-    builder.Configuration.GetValue<int>("CWorkerThreads"));
-
 services.AddAspNetCoreStaff();
 services.AddDependencyBox();
 services.AddMics();

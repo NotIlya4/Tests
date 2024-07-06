@@ -1,0 +1,6 @@
+admissionWebhooks:
+  certManager:
+    enabled: true
+manager:
+  collectorImage:
+    repository: "otel/opentelemetry-collector-contrib"

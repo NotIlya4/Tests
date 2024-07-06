@@ -10,7 +10,7 @@ spec:
     app: {{ .Release.Name }}
   ports:
     - name: myapp
-      port: {{ .Values.port }}
+      port: {{ .Values.pod.port }}
       targetPort: 5000
     - name: metrics
       port: 8889

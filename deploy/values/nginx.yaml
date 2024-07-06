@@ -1,0 +1,12 @@
+service:
+  ports:
+    http: 80
+readinessProbe:
+  enabled: false
+livenessProbe:
+  enabled: false
+serverBlock: |-
+  access_log off;
+resourcesPreset: none
+tls:
+  enabled: false

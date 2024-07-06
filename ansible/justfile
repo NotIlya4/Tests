@@ -14,7 +14,6 @@ k3s name:
     just k3s-inventory {{name}}
     just ansible k3s "-e \"nname={{name}}\""
     just k3s-config {{name}}
-    just apply-label-convention {{name}}
 
 k3s-inventory name:
     {{pythonPath}} ./scripts/write_inventory.py \
@@ -35,3 +34,6 @@ dns-lb-record name:
 
 apply-label-convention name:
     {{pythonPath}} ./scripts/apply_labels_by_convention.py --node-names $({{pythonPath}} ./scripts/get_node_names_from_workers.py --name {{name}})
+
+ssh path:
+    ssh -o StrictHostKeychecking=no ubuntu@$(cat $(python ./scripts/find_output_folder.py --no-json)/{{path}}/nat_ip_address.txt) -i $(python ./scripts/find_output_folder.py --no-json)/ssh.key

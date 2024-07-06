@@ -12,35 +12,8 @@ minikube:
       --extra-config=etcd.listen-metrics-urls=http://0.0.0.0:2381 \
       --extra-config=kubelet.housekeeping-interval=10s
 
-microk8s:
-  microk8s install \
-    --cpu 10 \
-    --mem 10 \
-    --disk 100 \
-    -y
-  microk8s config > C:\Users\IlyaKrupcov\.kube\config
-  microk8s enable cert-manager
-  microk8s enable hostpath-storage
-
-microk8s-config:
-  microk8s config > C:\Users\IlyaKrupcov\.kube\config
-  microk8s enable cert-manager
-  microk8s enable hostpath-storage
-
-microk8s-lite:
-  microk8s install -y
-  microk8s config > C:\Users\IlyaKrupcov\.kube\config
-  microk8s enable cert-manager
-  microk8s enable hostpath-storage
-
-apply:
-  helmfile apply --concurrency=1
-
-apply-kafka:
-  helmfile apply --concurrency=1 -f helmfile.kafka.yaml
-
-apply-dnstest:
-  helmfile apply --concurrency=1 -f helmfile.dnstest.yaml
+apply name:
+  helmfile apply --concurrency=1 -f helmfile.{{name}}.yaml
 
 port-forward:
   kubectl port-forward svc/monitoring-grafana -n monitoring 3000:3000 & \

@@ -1,0 +1,7 @@
+service:
+  type: NodePort
+ports:
+  web:
+    nodePort: 32160
+  websecure:
+    nodePort: 30643

@@ -1,0 +1,18 @@
+pod:
+  port: 5001
+  image: notilya4/db-tests.spammer:latest
+
+  resources:
+    cpu: 3
+    memory: 3Gi
+
+sql_server:
+  host: sql-server.sql-server,1433
+
+postgres:
+  host: postgres.postgres
+
+nginx:
+  address: http://nginx.nginx
+
+default_loglevel: Warning
