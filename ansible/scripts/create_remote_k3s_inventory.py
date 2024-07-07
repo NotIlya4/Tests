@@ -15,8 +15,11 @@ def create_remote_k3s_inventory(workers_raw):
     vars:
         ansible_ssh_private_key_file: /ssh.key
         k3s_server:
+            flannel-backend: 'none'
+            disable-network-policy: true
             disable:
-                - traefik"""
+                - traefik
+                - servicelb"""
 
     # Create a Jinja2 environment
     env = Environment(trim_blocks=True, lstrip_blocks=True)

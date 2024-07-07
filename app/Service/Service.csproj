@@ -21,9 +21,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\PostgresMigrations\PostgresMigrations.csproj" />
       <ProjectReference Include="..\Spam\Spam.csproj" />
-      <ProjectReference Include="..\SqlServerMigrationsBuilder\SqlServerMigrationsBuilder.csproj" />
     </ItemGroup>
 
 </Project>

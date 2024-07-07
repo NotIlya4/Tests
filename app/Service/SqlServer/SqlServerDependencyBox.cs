@@ -17,9 +17,7 @@ public class SqlServerDependencyBox
         _serviceCollection.AddDbContextFactory<AppDbContext>(
             x => x.UseSqlServer(
                 options.DefaultConn,
-                b => b
-                    .MigrationsAssembly(options.MigrationAssembly)
-                    .EnableRetryOnFailure())
+                b => b.EnableRetryOnFailure())
                 .EnableDetailedErrors());
 
         _serviceCollection.AddSingleton<AppDbContextConfigurator>();

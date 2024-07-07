@@ -4,8 +4,6 @@ using Microsoft.Data.SqlClient;
 using Npgsql;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
-using PostgresMigrations;
-using SqlServerMigrationsBuilder;
 
 namespace Service;
 
@@ -23,10 +21,27 @@ public static class AppExtensions
                 x.AddRuntimeInstrumentation();
                 x.AddProcessInstrumentation();
                 x.AddMeter(AppMetrics.MeterName);
+                x.AddView(AppMetrics.RunnerExecutionDurationName,
+                    new ExplicitBucketHistogramConfiguration(){Boundaries = GetBoundaries(100, 10_000_000)});
                 x.AddOtlpExporter((_, readerOptions) =>
                     readerOptions.PeriodicExportingMetricReaderOptions.ExportIntervalMilliseconds = 5000);
             });
         return services;
+    }
+
+    private static double[] GetBoundaries(double from, double to)
+    {
+        var current = from;
+        List<double> items = [];
+        while (to > current)
+        {
+            items.Add(current);
+            current = Math.Round(current * 1.5);
+        }
+        
+        items.Add(current);
+
+        return items.ToArray();
     }
 
     public static IServiceCollection AddDependencyBox(this IServiceCollection services)
@@ -35,14 +50,12 @@ public static class AppExtensions
             new SqlServerDependencyBox(new SqlServerDependencyBoxOptions 
             { 
                 DefaultConn = x.GetRequiredService<ConnectionStringRepository>().GetSqlServerConn(),
-                MigrationAssembly = typeof(SqlServerMigrationsBuilderAnchor).Assembly.GetName().Name!
             }));
 
         services.AddTransient<PostgresDependencyBox>(x =>
             new PostgresDependencyBox(new PostgresDependencyBoxOptions()
             {
-                DefaultConn = x.GetRequiredService<ConnectionStringRepository>().GetPostgresConnBuilder().ConnectionString,
-                MigrationAssembly = typeof(PostgresMigrationsAnchor).Assembly.GetName().Name!
+                DefaultConn = x.GetRequiredService<ConnectionStringRepository>().GetPostgresConnBuilder().ConnectionString
             }));
 
         return services;

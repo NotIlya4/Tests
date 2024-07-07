@@ -5,3 +5,5 @@ ports:
     nodePort: 32160
   websecure:
     nodePort: 30643
+nodeSelector:
+  node-role.kubernetes.io/worker: "true"

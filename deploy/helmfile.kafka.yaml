@@ -10,8 +10,10 @@ releases:
   namespace: nginx
   chart: bitnami/nginx
   installed: true
+  needs:
+  - cilium/cilium
   values:
-  - ./values/nginx.yaml
+  - ./values/nginx.yaml.gotmpl
 
 - name: myapp
   namespace: myapp

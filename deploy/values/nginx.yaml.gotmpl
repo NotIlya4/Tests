@@ -1,0 +1,32 @@
+service:
+  type: ClusterIP
+  ports:
+    http: 80
+
+readinessProbe:
+  enabled: false
+
+livenessProbe:
+  enabled: false
+
+serverBlock: |-
+  access_log off;
+
+resourcesPreset: none
+
+tls:
+  enabled: false
+
+nodeSelector:
+  node-role.kubernetes.io/worker: "true"
+
+staticSiteConfigmap: nginx-html
+
+extraDeploy:
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: nginx-html
+    data:
+      index.html: |
+        {{- readFile "./nginx-index.html" | nindent 8 }}

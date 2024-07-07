@@ -7,12 +7,21 @@ repositories:
   url: https://open-telemetry.github.io/opentelemetry-helm-charts
 - name: jetstack
   url: https://charts.jetstack.io
+- name: cilium
+  url: https://helm.cilium.io/
 
 releases:
+- name: cilium
+  namespace: cilium
+  chart: cilium/cilium
+  disableValidationOnInstall: true
+
 - name: traefik
   namespace: traefik
   chart: traefik/traefik
   disableValidationOnInstall: true
+  needs:
+  - cilium/cilium
   values:
   - ./values/traefik.yaml
 
@@ -20,6 +29,8 @@ releases:
   namespace: cert-manager
   chart: jetstack/cert-manager
   disableValidationOnInstall: true
+  needs:
+  - cilium/cilium
   values:
   - ./values/cert-manager.yaml
 
@@ -29,6 +40,7 @@ releases:
   disableValidationOnInstall: true
   needs:
   - cert-manager/cert-manager
+  - cilium/cilium
   values:
   - ./values/open-telemetry.yaml
 
@@ -36,5 +48,7 @@ releases:
   namespace: monitoring
   chart: prometheus/kube-prometheus-stack
   disableValidationOnInstall: true
+  needs:
+  - cilium/cilium
   values:
   - ./values/monitoring.yaml.gotmpl

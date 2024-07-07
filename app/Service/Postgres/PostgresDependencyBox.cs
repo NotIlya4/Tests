@@ -26,9 +26,7 @@ public class PostgresDependencyBox
         _serviceCollection.AddDbContextFactory<AppDbContext>(
             x => x.UseNpgsql(
                     options.DefaultConn,
-                    b => b
-                        .MigrationsAssembly(options.MigrationAssembly)
-                        .EnableRetryOnFailure())
+                    b => b.EnableRetryOnFailure())
                 .EnableDetailedErrors());
 
         _serviceCollection.AddSingleton<AppDbContextConfigurator>();

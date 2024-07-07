@@ -4,3 +4,5 @@ admissionWebhooks:
 manager:
   collectorImage:
     repository: "otel/opentelemetry-collector-contrib"
+nodeSelector:
+  node-role.kubernetes.io/worker: "true"
