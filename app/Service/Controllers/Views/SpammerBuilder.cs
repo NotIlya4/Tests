@@ -7,12 +7,12 @@ namespace Service;
 public class SpammerBuilder(
     ILogger<Spammer> logger,
     AppMetrics appMetrics,
-    NginxPingServiceFactory nginxPingServiceFactory)
+    IServiceProvider serviceProvider)
 {
     private int? _runnerExecutions;
     private int? _parallelRunners;
     private string? _testName;
-    private ISpammerStrategy? _spammerStrategy;
+    private Func<CancellationToken, Task<ISpammerStrategy>>? _spammerStrategyFactory;
     private ISpammerParallelEngine? _spammerParallelEngine;
 
     public SpammerBuilder WithDbContextStrategy(
@@ -21,24 +21,41 @@ public class SpammerBuilder(
         DataCreationStrategyType dataCreationStrategyType,
         int fixedLengthStringLength)
     {
-        _spammerStrategy = new DbContextSpammerStrategy(new DbContextSpammerStrategyOptions()
+        async Task HotConnections(CancellationToken cancellationToken)
         {
-            DbContextFactory = dbContextFactory,
-            DbContextRetryStrategy = DbContextRetryStrategy.FullExpensive,
-            HotConnections = true,
-            OperationStrategy = dbContextStrategyType.CreateDbContextStrategy(dataCreationStrategyType.CreateStrategy(fixedLengthStringLength))
-        });
+            await using var dbContext = await dbContextFactory.CreateDbContextAsync(cancellationToken);
+            await dbContext.SequentialKeyEntities.Take(1).ToListAsync(cancellationToken);
+        }
+        
+        _spammerStrategyFactory = async (cancellationToken) =>
+        {
+            await HotConnections(cancellationToken);
+            
+            return new DbContextSpammerStrategy(new DbContextSpammerStrategyOptions()
+            {
+                DbContextFactory = dbContextFactory,
+                DbContextRetryStrategyType = DbContextRetryStrategyType.FullExpensive,
+                OperationStrategy =
+                    dbContextStrategyType.CreateDbContextStrategy(
+                        dataCreationStrategyType.CreateStrategy(fixedLengthStringLength))
+            });
+        };
         
         return this;
     }
 
     public SpammerBuilder WithNginxStrategy(NginxPingMode pingMode)
     {
-        _spammerStrategy = new NginxStrategy(new NginxSpammerStrategyOptions()
+        if (pingMode == NginxPingMode.SingletonHttpClient)
         {
-            NginxPingMode = pingMode,
-            PingServiceFactory = nginxPingServiceFactory
-        });
+            var singletonPingClient = serviceProvider.GetRequiredService<NginxPingService>();
+            _spammerStrategyFactory = (_) => Task.FromResult((ISpammerStrategy)new NginxStrategy(singletonPingClient));
+        }
+        else
+        {
+            _spammerStrategyFactory = (_) => Task.FromResult(
+                    (ISpammerStrategy)new NginxStrategy(serviceProvider.GetRequiredService<NginxPingService>()));
+        }
 
         return this;
     }
@@ -49,9 +66,15 @@ public class SpammerBuilder(
         return this;
     }
     
-    public SpammerBuilder WithSpammerStrategy(ISpammerStrategy spammerStrategy)
+    public SpammerBuilder WithSpammerStrategy(Func<ISpammerStrategy> spammerStrategyFactory)
     {
-        _spammerStrategy = spammerStrategy;
+        _spammerStrategyFactory = (_) => Task.FromResult(spammerStrategyFactory());
+        return this;
+    }
+    
+    public SpammerBuilder WithSpammerStrategy(Func<CancellationToken, Task<ISpammerStrategy>> spammerStrategyFactory)
+    {
+        _spammerStrategyFactory = spammerStrategyFactory;
         return this;
     }
     
@@ -92,13 +115,13 @@ public class SpammerBuilder(
         ArgumentNullException.ThrowIfNull(_parallelRunners);
         ArgumentNullException.ThrowIfNull(_runnerExecutions);
         ArgumentNullException.ThrowIfNull(_testName);
-        ArgumentNullException.ThrowIfNull(_spammerStrategy);
+        ArgumentNullException.ThrowIfNull(_spammerStrategyFactory);
         ArgumentNullException.ThrowIfNull(_spammerParallelEngine);
 
         return Create(new SpammerOptions()
         {
             Logger = logger,
-            SpammerStrategy = _spammerStrategy,
+            SpammerStrategyFactory = _spammerStrategyFactory,
             SpammerParallelEngine = _spammerParallelEngine,
             Metrics = new SpammerMetrics(appMetrics, _testName, nameof(Spammer)),
             ParallelRunners = _parallelRunners.Value,

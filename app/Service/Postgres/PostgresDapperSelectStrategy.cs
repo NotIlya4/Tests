@@ -4,20 +4,11 @@ using Spam;
 
 namespace Service;
 
-public class PostgresDapperSelectStrategy(string conn, SelectStrategyType selectStrategyType, int limit): ISpammerStrategy
+public class PostgresDapperSelectStrategy(NpgsqlConnection connection, SelectStrategyType selectStrategyType, Random random, int count, int limit): ISpammerStrategy
 {
-    public async Task Prepare(int runnerIndex, Dictionary<object, object> runnerData, CancellationToken cancellationToken)
-    {
-        var connection = new NpgsqlConnection(conn);
-        runnerData["connection"] = connection;
-        runnerData["random"] = new Random(Random.Shared.Next());
-        runnerData["count"] = await connection.QueryFirstAsync<int>("SELECT count(*) FROM \"SequentialEntities\";");
-    }
-
     public async Task Execute(RunnerExecutionContext context, CancellationToken cancellationToken)
     {
-        var id = ((Random)context.Data["random"]).Next((int)context.Data["count"]);
-        var connection = (NpgsqlConnection)context.Data["connection"];
+        var id = random.Next(count);
 
         if (selectStrategyType == SelectStrategyType.RandomSingle)
         {

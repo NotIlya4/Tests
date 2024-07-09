@@ -5,8 +5,8 @@ namespace Spam;
 public class AppDbContext : DbContext
 {
     private readonly AppDbContextConfigurator _appDbContextConfigurator;
-    public DbSet<SequentialEntity> SequentialEntities { get; set; }
-    public DbSet<StringEntity> StringEntities { get; set; }
+    public DbSet<SequentialEntity> SequentialKeyEntities { get; set; }
+    public DbSet<StringEntity> RandomKeyEntities { get; set; }
 
     public AppDbContext(DbContextOptions<AppDbContext> options, AppDbContextConfigurator appDbContextConfigurator) : base(options)
     {

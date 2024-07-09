@@ -70,7 +70,7 @@ public class TestsController
 
         if (!optionsView.IsDbContextStrategy)
         {
-            _spammerBuilder.WithSpammerStrategy(optionsView.PostgresStrategyType.CreateStrategy(
+            _spammerBuilder.WithSpammerStrategy((_) => optionsView.PostgresStrategyType.CreateStrategy(
                 _postgresDependencyBox.Conn,
                 optionsView.DataCreationStrategyOptions.CreateStrategy(),
                 optionsView.SelectStrategyType,
@@ -98,14 +98,14 @@ public class TestsController
     }
     
     [HttpPost("tests/sanity")]
-    public async Task<SpammerResultView> TestSanity([DefaultValue(1000)] int sleepMs, CancellationToken cancellationToken)
+    public async Task<SpammerResultView> TestSanity([DefaultValue(1000)] int sleepMs, [DefaultValue(10000)] int rareSleepMs, CancellationToken cancellationToken)
     {
         var times = 60000 / sleepMs;
         
         var spammer = _spammerBuilder
             .WithParallelRunners(1)
             .WithRunnerExecutions(times)
-            .WithSpammerStrategy(new SanityStrategy(sleepMs))
+            .WithSpammerStrategy(() => new SanityStrategy(sleepMs, rareSleepMs))
             .WithTestName("sanity")
             .WithParallelEngine(new ForParallelEngine())
             .Build();

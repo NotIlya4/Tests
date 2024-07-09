@@ -1,4 +1,6 @@
-﻿using Spam;
+﻿using Dapper;
+using Npgsql;
+using Spam;
 
 namespace Service.Enums;
 
@@ -43,17 +45,25 @@ public static class DataCreationStrategyTypeExtensions
         };
     }
     
-    public static ISpammerStrategy CreateStrategy(this PostgresStrategyType type, string conn, ISimpleDataCreationStrategy<string> dataCreationStrategy, SelectStrategyType selectStrategyType, int limit)
+    public static async Task<ISpammerStrategy> CreateStrategy(
+        this PostgresStrategyType type,
+        string conn,
+        ISimpleDataCreationStrategy<string> dataCreationStrategy,
+        SelectStrategyType selectStrategyType,
+        int limit)
     {
+        var connection = new NpgsqlConnection(conn);
+        await connection.ExecuteAsync("SELECT * FROM \"StringEntities\" LIMIT 1");
+
         return type switch
         {
-            PostgresStrategyType.DapperInsertSeqEntity => new PostgresDapperSequentialStrategy(conn, dataCreationStrategy),
-            PostgresStrategyType.DapperInsertStringEntity => new PostgresDapperGuidStrategy(new PostgresDapperGuidStrategyOptions()
-            {
-                Conn = conn,
-                DataCreationStrategy = dataCreationStrategy
-            }),
-            PostgresStrategyType.DapperSelect => new PostgresDapperSelectStrategy(conn, selectStrategyType, limit),
+            PostgresStrategyType.DapperInsertSeqEntity => new PostgresDapperSequentialStrategy(connection,
+                dataCreationStrategy),
+            PostgresStrategyType.DapperInsertStringEntity => new PostgresDapperGuidStrategy(connection,
+                dataCreationStrategy),
+            PostgresStrategyType.DapperSelect => new PostgresDapperSelectStrategy(connection, selectStrategyType,
+                new Random(Random.Shared.Next()),
+                await connection.QueryFirstAsync<int>("SELECT count(*) FROM \"SequentialEntities\";"), limit),
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
         };
     }

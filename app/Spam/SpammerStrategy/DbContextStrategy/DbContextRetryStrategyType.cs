@@ -1,6 +1,6 @@
 ﻿namespace Spam;
 
-public enum DbContextRetryStrategy
+public enum DbContextRetryStrategyType
 {
     FullExpensive,
     None

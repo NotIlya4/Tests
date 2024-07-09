@@ -13,24 +13,21 @@ public class Spammer(SpammerOptions options)
     
     public async Task<SpammerRunResult> Run(CancellationToken cancellationToken)
     {
-        var datas = new ConcurrentDictionary<int, Dictionary<object, object>>(_parallelRunners, _parallelRunners);
-        
         var preparationStopwatch = Stopwatch.StartNew();
+
+        var spammers = new ConcurrentDictionary<int, ISpammerStrategy>();
 
         await options.SpammerParallelEngine.ParallelRun(
             options.ParallelRunners,
             async i =>
             {
-                var data = new Dictionary<object, object>();
-                datas[i] = data;
-
-                await options.SpammerStrategy.Prepare(i, data, cancellationToken);
+                spammers[i] = await options.SpammerStrategyFactory(cancellationToken);
             },
             cancellationToken);
         
         preparationStopwatch.Stop();
         var preparationTime = preparationStopwatch.Elapsed;
-        _logger?.LogInformation("Preparation hooks finished in {PreparationTime}", preparationTime);
+        _logger?.LogInformation("Preparations finished in {PreparationTime}", preparationTime);
 
         var runStopwatch = Stopwatch.StartNew();
 
@@ -38,19 +35,17 @@ public class Spammer(SpammerOptions options)
             options.ParallelRunners,
             async i =>
             {
-                var data = datas[i];
-                
+                var spammer = spammers[i];
                 await SequenceRunner.Run(
                     async currentRun =>
                     {
                         try
                         {
                             await DecorateWithMetrics(
-                                async context => await options.SpammerStrategy.Execute(context, cancellationToken),
+                                async context => await spammer.Execute(context, cancellationToken),
                                 new RunnerExecutionContext()
                                 {
                                     CurrentExecution = currentRun,
-                                    Data = data,
                                     RunnerIndex = i
                                 });
                         }

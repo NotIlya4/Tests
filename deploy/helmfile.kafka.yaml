@@ -4,51 +4,23 @@ bases:
 repositories:
 - name: bitnami
   url: https://charts.bitnami.com/bitnami
+- name: kafka-ui
+  url: https://provectus.github.io/kafka-ui-charts
 
 releases:
-- name: nginx
-  namespace: nginx
-  chart: bitnami/nginx
-  installed: true
-  needs:
-  - cilium/cilium
-  values:
-  - ./values/nginx.yaml.gotmpl
-
-- name: myapp
-  namespace: myapp
-  chart: ./myapp
-  disableValidationOnInstall: true
-  needs:
-  - open-telemetry/open-telemetry
-
 - name: kafka
   namespace: kafka
   chart: bitnami/kafka
-  installed: false
   values:
   - kraft:
       clusterId: jh08hbDufMo4Pr454I4zL1
+    provisioning:
+      nodeSelector:
+        node-role.kubernetes.io/kafka: "true"
     controller:
-      podAnnotations:
-        kubernetes.io/ingress-bandwidth: '1000000'
-        kubernetes.io/egress-bandwidth: '1000000'
       resourcesPreset: none
-    externalAccess:
-      enabled: true
-      controller:
-        forceExpose: true
-        service:
-          type: NodePort
-          domain: 84.201.155.179
-          externalIPs:
-          - 84.201.155.179
-          - 84.201.155.179
-          - 84.201.155.179
-          nodePorts:
-          - 30325
-          - 30672
-          - 30336
+    broker:
+      resourcesPreset: none
     listeners:
       client:
         protocol: PLAINTEXT
@@ -58,5 +30,30 @@ releases:
         protocol: PLAINTEXT
       external:
         protocol: PLAINTEXT
-    # extraConfig:
-    #   replica.lag.time.max.ms: 500
+    extraConfig:
+      #replica.lag.time.max.ms: 500
+      min.insync.replicas: 2
+
+- name: kafka-ui
+  namespace: kafka-ui
+  chart: kafka-ui/kafka-ui
+  values:
+  - yamlApplicationConfig:
+      kafka:
+        clusters:
+          - name: kafka1
+            bootstrapServers:  kafka.kafka:9092
+      auth:
+        type: disabled
+      management:
+        health:
+          ldap:
+            enabled: false
+    ingress:
+      enabled: true
+      annotations:
+        traefik.ingress.kubernetes.io/router.entrypoints: web
+      host: kafka-ui.krupcov.ru
+    env:
+      - name: DYNAMIC_CONFIG_ENABLED
+        value: 'true'

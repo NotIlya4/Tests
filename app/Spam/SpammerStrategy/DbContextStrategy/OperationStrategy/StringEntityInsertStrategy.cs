@@ -4,7 +4,7 @@ public class StringEntityInsertStrategy(StringEntityInsertStrategyOptions option
 {
     public async Task Execute(AppDbContext dbContext, RunnerExecutionContext context, CancellationToken cancellationToken)
     {
-        dbContext.StringEntities.Add(new StringEntity() { Id = options.DataCreationStrategy.CreateData() });
+        dbContext.RandomKeyEntities.Add(new StringEntity() { Id = options.DataCreationStrategy.CreateData() });
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 }

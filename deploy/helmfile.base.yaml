@@ -52,3 +52,19 @@ releases:
   - cilium/cilium
   values:
   - ./values/monitoring.yaml.gotmpl
+
+- name: nginx
+  namespace: nginx
+  chart: bitnami/nginx
+  installed: true
+  needs:
+  - cilium/cilium
+  values:
+  - ./values/nginx.yaml.gotmpl
+
+- name: myapp
+  namespace: myapp
+  chart: ./myapp
+  disableValidationOnInstall: true
+  needs:
+  - open-telemetry/open-telemetry
