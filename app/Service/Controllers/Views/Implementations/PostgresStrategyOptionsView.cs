@@ -2,8 +2,10 @@
 
 namespace Service;
 
-public class PostgresStrategyOptionsView : DbContextStrategyOptionsView
+public class PostgresStrategyOptionsView
 {
+    public SpammerOptionsView SpammerOptions { get; set; }
+    public DbContextStrategyOptionsView DbContextStrategyOptions { get; set; }
     [DefaultValue(false)]
     public bool IsDbContextStrategy { get; set; }
 

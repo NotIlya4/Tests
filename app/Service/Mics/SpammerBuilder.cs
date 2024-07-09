@@ -96,12 +96,12 @@ public class SpammerBuilder(
         return this;
     }
 
-    public SpammerBuilder ApplyView(SpammerViewBase viewBase)
+    public SpammerBuilder ApplySpammerOptions(SpammerOptionsView optionsView)
     {
-        _parallelRunners = viewBase.ParallelRunners;
-        _runnerExecutions = viewBase.RunnerExecutions;
-        _testName = viewBase.TestName;
-        _spammerParallelEngine = viewBase.SpammerParallelEngineType.CreateEngine();
+        _parallelRunners = optionsView.ParallelRunners;
+        _runnerExecutions = optionsView.RunnerExecutions;
+        _testName = optionsView.TestName;
+        _spammerParallelEngine = optionsView.SpammerParallelEngineType.CreateEngine();
         return this;
     }
 

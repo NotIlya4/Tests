@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 
 namespace Service;
 
-public class SpammerViewBase
+public class SpammerOptionsView
 {
     [DefaultValue(1)]
     public int ParallelRunners { get; set; } = 1;
@@ -11,7 +11,9 @@ public class SpammerViewBase
     [DefaultValue(1)]
     public int RunnerExecutions { get; set; } = 1;
 
-    public SpammerParallelEngineType SpammerParallelEngineType { get; set; }
+    [DefaultValue(SpammerParallelEngineType.ParallelForEachAsync)]
+    public SpammerParallelEngineType SpammerParallelEngineType { get; set; } =
+        SpammerParallelEngineType.ParallelForEachAsync;
 
     [DefaultValue("test1")]
     public string TestName { get; set; } = "test1";

@@ -5,10 +5,9 @@ using Spam;
 
 namespace Service;
 
-public class DbContextStrategyOptionsView : SpammerViewBase
+public class DbContextStrategyOptionsView
 {
     public DbContextStrategyType DbContextStrategyType { get; set; } = DbContextStrategyType.StringEntity;
-
     public DataCreationStrategyOptionsView DataCreationStrategyOptions { get; set; }
 }
 

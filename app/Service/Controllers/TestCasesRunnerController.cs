@@ -25,11 +25,11 @@ public class TestsController
     }
     
     [HttpPost("tests/sql-server")]
-    public async Task<SpammerResultView> TestSqlServer(SqlServerStrategyOptionsView optionsView, CancellationToken cancellationToken)
+    public async Task<SpammerResultView> TestSqlServer(SqlServerStrategyOptionsOptionsView optionsView, CancellationToken cancellationToken)
     {
         var connBuilder = _connectionStringRepository.GetSqlServerConnBuilder();
 
-        connBuilder.InitialCatalog = optionsView.TestName;
+        connBuilder.InitialCatalog = optionsView.SpammerOptions.TestName;
         if (optionsView.Server is not null)
             connBuilder.DataSource = optionsView.Server;
         
@@ -38,12 +38,12 @@ public class TestsController
         await _sqlServerDependencyBox.Migrate();
 
         var spammer = _spammerBuilder
-            .ApplyView(optionsView)
+            .ApplySpammerOptions(optionsView.SpammerOptions)
             .WithDbContextStrategy(
                 _sqlServerDependencyBox.DbContextFactory,
-                optionsView.DbContextStrategyType,
-                optionsView.DataCreationStrategyOptions.DataCreationStrategyType,
-                optionsView.DataCreationStrategyOptions.FixedLengthStringLength)
+                optionsView.DbContextStrategyOptions.DbContextStrategyType,
+                optionsView.DbContextStrategyOptions.DataCreationStrategyOptions.DataCreationStrategyType,
+                optionsView.DbContextStrategyOptions.DataCreationStrategyOptions.FixedLengthStringLength)
             .Build();
 
         var result = await spammer.Run(cancellationToken);
@@ -55,24 +55,24 @@ public class TestsController
     public async Task<SpammerResultView> TestPostgres(PostgresStrategyOptionsView optionsView, CancellationToken cancellationToken)
     {
         var connBuilder = _connectionStringRepository.GetPostgresConnBuilder();
-        connBuilder.Database = optionsView.TestName;
+        connBuilder.Database = optionsView.SpammerOptions.TestName;
         _postgresDependencyBox.SetConn(connBuilder.ConnectionString);
 
         await _postgresDependencyBox.Migrate();
 
         var builder = _spammerBuilder
-            .ApplyView(optionsView)
+            .ApplySpammerOptions(optionsView.SpammerOptions)
             .WithDbContextStrategy(
                 _postgresDependencyBox.DbContextFactory,
-                optionsView.DbContextStrategyType,
-                optionsView.DataCreationStrategyOptions.DataCreationStrategyType,
-                optionsView.DataCreationStrategyOptions.FixedLengthStringLength);
+                optionsView.DbContextStrategyOptions.DbContextStrategyType,
+                optionsView.DbContextStrategyOptions.DataCreationStrategyOptions.DataCreationStrategyType,
+                optionsView.DbContextStrategyOptions.DataCreationStrategyOptions.FixedLengthStringLength);
 
         if (!optionsView.IsDbContextStrategy)
         {
             _spammerBuilder.WithSpammerStrategy((_) => optionsView.PostgresStrategyType.CreateStrategy(
                 _postgresDependencyBox.Conn,
-                optionsView.DataCreationStrategyOptions.CreateStrategy(),
+                optionsView.DbContextStrategyOptions.DataCreationStrategyOptions.CreateStrategy(),
                 optionsView.SelectStrategyType,
                 optionsView.Limit));
         }
@@ -85,11 +85,11 @@ public class TestsController
     }
     
     [HttpPost("tests/nginx")]
-    public async Task<SpammerResultView> TestNginx(NginxStrategyView view, CancellationToken cancellationToken)
+    public async Task<SpammerResultView> TestNginx(NginxStrategyOptionsView optionsView, CancellationToken cancellationToken)
     {
         var spammer = _spammerBuilder
-            .ApplyView(view)
-            .WithNginxStrategy(view.PingMode)
+            .ApplySpammerOptions(optionsView)
+            .WithNginxStrategy(optionsView.PingMode)
             .Build();
 
         var result = await spammer.Run(cancellationToken);
