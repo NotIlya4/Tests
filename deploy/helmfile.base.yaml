@@ -44,12 +44,42 @@ releases:
   values:
   - ./values/open-telemetry.yaml
 
+- name: loki
+  namespace: loki
+  chart: bitnami/grafana-loki
+  needs:
+  - cilium/cilium
+  values:
+  - compactor:
+      nodeSelector:
+        node-role.kubernetes.io/worker: "true"
+    gateway:
+      nodeSelector:
+        node-role.kubernetes.io/worker: "true"
+    distributor:
+      nodeSelector:
+        node-role.kubernetes.io/worker: "true"
+    ingester:
+      nodeSelector:
+        node-role.kubernetes.io/worker: "true"
+    querier:
+      nodeSelector:
+        node-role.kubernetes.io/worker: "true"
+    queryFrontend:
+      nodeSelector:
+        node-role.kubernetes.io/worker: "true"
+    queryScheduler:
+      nodeSelector:
+        node-role.kubernetes.io/worker: "true"
+
 - name: monitoring
   namespace: monitoring
   chart: prometheus/kube-prometheus-stack
   disableValidationOnInstall: true
   needs:
   - cilium/cilium
+  - traefik/traefik
+  - loki/loki
   values:
   - ./values/monitoring.yaml.gotmpl
 
@@ -59,6 +89,7 @@ releases:
   installed: true
   needs:
   - cilium/cilium
+  - traefik/traefik
   values:
   - ./values/nginx.yaml.gotmpl
 
@@ -67,4 +98,6 @@ releases:
   chart: ./myapp
   disableValidationOnInstall: true
   needs:
+  - cilium/cilium
+  - traefik/traefik
   - open-telemetry/open-telemetry

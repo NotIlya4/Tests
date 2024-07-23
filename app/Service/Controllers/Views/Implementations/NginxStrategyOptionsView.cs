@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 
 namespace Service;
 
-public class NginxStrategyOptionsView : SpammerOptionsView
+public class NginxStrategyOptionsView
 {
     public SpammerOptionsView SpammerOptions { get; set; }
 

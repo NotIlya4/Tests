@@ -64,7 +64,10 @@ public static class AppExtensions
     public static IServiceCollection AddAspNetCoreStaff(this IServiceCollection services)
     {
         services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen();
+        services.AddSwaggerGen(options =>
+        {
+            options.UseInlineDefinitionsForEnums();
+        });
         services.AddHealthChecks();
         services.AddControllers()
             .AddJsonOptions(options =>

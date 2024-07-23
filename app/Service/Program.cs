@@ -3,6 +3,8 @@ using Service;
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 
+services.AddOptions();
+services.AddOptions<KafkaOptions>().BindConfiguration("Kafka");
 services.AddAspNetCoreStaff();
 services.AddDependencyBox();
 services.AddMics();

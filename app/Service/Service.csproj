@@ -24,8 +24,4 @@
       <ProjectReference Include="..\Spam\Spam.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Kafka\" />
-    </ItemGroup>
-
 </Project>

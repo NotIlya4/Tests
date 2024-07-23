@@ -88,7 +88,7 @@ public class TestsController
     public async Task<SpammerResultView> TestNginx(NginxStrategyOptionsView optionsView, CancellationToken cancellationToken)
     {
         var spammer = _spammerBuilder
-            .ApplySpammerOptions(optionsView)
+            .ApplySpammerOptions(optionsView.SpammerOptions)
             .WithNginxStrategy(optionsView.PingMode)
             .Build();
 
@@ -112,6 +112,21 @@ public class TestsController
 
         var result = await spammer.Run(cancellationToken);
 
+        return SpammerResultView.FromModel(result);
+    }
+
+    [HttpPost("kafka-producer")]
+    public async Task<SpammerResultView> TestKafka(
+        KafkaProducerStrategyOptionsView optionsView,
+        CancellationToken cancellationToken)
+    {
+        var spammer = _spammerBuilder
+            .WithKafkaProducerStrategy(optionsView)
+            .ApplySpammerOptions(optionsView.SpammerOptionsView)
+            .Build();
+
+        var result = await spammer.Run(cancellationToken);
+        
         return SpammerResultView.FromModel(result);
     }
 }

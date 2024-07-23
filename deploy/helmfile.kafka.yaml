@@ -8,9 +8,62 @@ repositories:
   url: https://provectus.github.io/kafka-ui-charts
 
 releases:
+- name: myapp-2
+  namespace: myapp-2
+  chart: ./myapp
+  disableValidationOnInstall: true
+  needs:
+  - cilium/cilium
+  - traefik/traefik
+  - open-telemetry/open-telemetry
+  values:
+  - ingress:
+      host: myapp-2.krupcov.ru
+
+- name: myapp-3
+  namespace: myapp-3
+  chart: ./myapp
+  disableValidationOnInstall: true
+  needs:
+  - cilium/cilium
+  - traefik/traefik
+  - open-telemetry/open-telemetry
+  values:
+  - ingress:
+      host: myapp-3.krupcov.ru
+
+
+- name: myapp-4
+  namespace: myapp-4
+  chart: ./myapp
+  disableValidationOnInstall: true
+  needs:
+  - cilium/cilium
+  - traefik/traefik
+  - open-telemetry/open-telemetry
+  values:
+  - ingress:
+      host: myapp-4.krupcov.ru
+
+
+- name: myapp-5
+  namespace: myapp-5
+  chart: ./myapp
+  disableValidationOnInstall: true
+  needs:
+  - cilium/cilium
+  - traefik/traefik
+  - open-telemetry/open-telemetry
+  values:
+  - ingress:
+      host: myapp-5.krupcov.ru
+
 - name: kafka
   namespace: kafka
   chart: bitnami/kafka
+  needs:
+  - cilium/cilium
+  - traefik/traefik
   values:
   - kraft:
       clusterId: jh08hbDufMo4Pr454I4zL1
@@ -19,8 +72,18 @@ releases:
         node-role.kubernetes.io/kafka: "true"
     controller:
       resourcesPreset: none
+      podAntiAffinityPreset: hard
     broker:
       resourcesPreset: none
+    externalAccess:
+      enabled: true
+      controller:
+        service:
+          type: NodePort
+          nodePorts:
+          - '31412'
+          - '31265'
+          - '32353'
     listeners:
       client:
         protocol: PLAINTEXT
@@ -31,12 +94,26 @@ releases:
       external:
         protocol: PLAINTEXT
     extraConfig:
-      #replica.lag.time.max.ms: 500
       min.insync.replicas: 2
+      default.replication.factor: 3
+      #replica.socket.receive.buffer.bytes: -1
+      #socket.receive.buffer.bytes: -1
+      #socket.send.buffer.bytes: -1
+    log4j: |
+      log4j.rootLogger=INFO, stdout
+
+      log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+      log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+      log4j.appender.stdout.layout.ConversionPattern=[%d] %p %m (%c)%n
+
+      log4j.logger.kafka.request.logger=TRACE
 
 - name: kafka-ui
   namespace: kafka-ui
   chart: kafka-ui/kafka-ui
+  needs:
+  - cilium/cilium
+  - traefik/traefik
   values:
   - yamlApplicationConfig:
       kafka:
@@ -54,6 +131,9 @@ releases:
       annotations:
         traefik.ingress.kubernetes.io/router.entrypoints: web
       host: kafka-ui.krupcov.ru
+      ingressClassName: traefik
     env:
       - name: DYNAMIC_CONFIG_ENABLED
         value: 'true'
+    nodeSelector:
+      node-role.kubernetes.io/worker: "true"

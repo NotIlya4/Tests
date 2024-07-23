@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Confluent.Kafka;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Service.Enums;
 using Spam;
 
@@ -7,6 +9,7 @@ namespace Service;
 public class SpammerBuilder(
     ILogger<Spammer> logger,
     AppMetrics appMetrics,
+    IOptions<KafkaOptions> kafkaOptions,
     IServiceProvider serviceProvider)
 {
     private int? _runnerExecutions;
@@ -15,6 +18,54 @@ public class SpammerBuilder(
     private Func<CancellationToken, Task<ISpammerStrategy>>? _spammerStrategyFactory;
     private ISpammerParallelEngine? _spammerParallelEngine;
 
+    public SpammerBuilder WithKafkaProducerStrategy(KafkaProducerStrategyOptionsView optionsView)
+    {
+        IProducer<string, string> CreateProducer()
+        {
+            var producerConfig = new ProducerConfig()
+            {
+                BootstrapServers = kafkaOptions.Value.BootstrapServers,
+                CompressionType = optionsView.CompressionType,
+                EnableIdempotence = optionsView.EnableIdempotence,
+                Acks = optionsView.Acks,
+                ClientId = $"{optionsView.SpammerOptionsView.TestName}-client",
+                MessageMaxBytes = optionsView.Size + 100,
+                SocketNagleDisable = 
+            };
+            
+            return new ProducerBuilder<string, string>(producerConfig).Build();
+        }
+        
+        IProducer<string, string> singleton = null!;
+
+        if (optionsView.SingletonProducer)
+        {
+            singleton = CreateProducer();
+        }
+        
+        _spammerStrategyFactory = async _ =>
+        {
+            IProducer<string, string> producer; 
+
+            if (optionsView.SingletonProducer)
+            {
+                producer = singleton;
+            }
+            else
+            {
+                producer = CreateProducer();
+            }
+            
+            return new KafkaProducerStrategy(
+                producer,
+                optionsView.SpammerOptionsView.TestName,
+                optionsView.SingletonTopic,
+                optionsView.Size);
+        };
+        
+        return this;
+    }
+    
     public SpammerBuilder WithDbContextStrategy(
         IDbContextFactory<AppDbContext> dbContextFactory,
         DbContextStrategyType dbContextStrategyType,
