@@ -6,7 +6,7 @@ metadata:
     traefik.ingress.kubernetes.io/router.entrypoints: web
 spec:
   rules:
-  - host: {{ .Values.ingress.host }}
+  - host: {{ .Release.Name }}.krupcov.ru
     http:
       paths:
       - backend:

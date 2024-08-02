@@ -1,3 +1,6 @@
+using System.Text;
+using IronSnappy;
+using Prometheus;
 using Service;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,11 +12,12 @@ services.AddAspNetCoreStaff();
 services.AddDependencyBox();
 services.AddMics();
 services.AddNginxStrategyServices(builder.Configuration);
-services.AddConfiguredOpenTelemetry();
 services.AddTransient<SpammerBuilder>();
+services.AddMetrics();
 
 var app = builder.Build();
 
+app.MapMetrics();
 app.UseHealthChecks("/healthz");
 app.UseSwagger();
 app.UseSwaggerUI();

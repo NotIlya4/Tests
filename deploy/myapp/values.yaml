@@ -18,6 +18,3 @@ kafka:
   bootstrap_servers: kafka.kafka:9092
 
 default_loglevel: Warning
-
-ingress:
-  host: myapp.krupcov.ru

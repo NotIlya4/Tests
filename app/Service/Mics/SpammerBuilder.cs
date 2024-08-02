@@ -29,8 +29,15 @@ public class SpammerBuilder(
                 EnableIdempotence = optionsView.EnableIdempotence,
                 Acks = optionsView.Acks,
                 ClientId = $"{optionsView.SpammerOptionsView.TestName}-client",
-                MessageMaxBytes = optionsView.Size + 100,
-                SocketNagleDisable = 
+                MessageMaxBytes = optionsView.MaxMsgSize == -1 ? optionsView.Size + 100 : optionsView.MaxMsgSize,
+                SocketNagleDisable = optionsView.SocketNagleDisable,
+                MaxInFlight = optionsView.MaxInFlight,
+                LingerMs = optionsView.LingerMs,
+                SocketKeepaliveEnable = true, 
+                BatchSize = optionsView.BatchSize,
+                BatchNumMessages = optionsView.BatchNumMessages,
+                SocketReceiveBufferBytes = optionsView.SocketReceiveBufferBytes,
+                SocketSendBufferBytes = optionsView.SocketSendBufferBytes
             };
             
             return new ProducerBuilder<string, string>(producerConfig).Build();
@@ -55,12 +62,23 @@ public class SpammerBuilder(
             {
                 producer = CreateProducer();
             }
+
+            var randomJitter = TimeSpan.Zero;
+            if (optionsView.StartupJitterMs.HasValue)
+            {
+                lock (Random.Shared)
+                {
+                    var jitterMs = Random.Shared.Next(optionsView.StartupJitterMs.Value);
+                    randomJitter = TimeSpan.FromMilliseconds(jitterMs);
+                }
+            }
             
             return new KafkaProducerStrategy(
                 producer,
                 optionsView.SpammerOptionsView.TestName,
                 optionsView.SingletonTopic,
-                optionsView.Size);
+                optionsView.Size,
+                randomJitter);
         };
         
         return this;

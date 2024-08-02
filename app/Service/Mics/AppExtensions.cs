@@ -2,33 +2,11 @@
 using System.Text.Json.Serialization;
 using Microsoft.Data.SqlClient;
 using Npgsql;
-using OpenTelemetry.Metrics;
-using OpenTelemetry.Resources;
 
 namespace Service;
 
 public static class AppExtensions
 {
-    public static IServiceCollection AddConfiguredOpenTelemetry(this IServiceCollection services)
-    {
-        services.AddOpenTelemetry()
-            .ConfigureResource(x =>
-            {
-                x.AddService("sql-server");
-            })
-            .WithMetrics(x =>
-            {
-                x.AddRuntimeInstrumentation();
-                x.AddProcessInstrumentation();
-                x.AddMeter(AppMetrics.MeterName);
-                x.AddView(AppMetrics.RunnerExecutionDurationName,
-                    new ExplicitBucketHistogramConfiguration(){Boundaries = GetBoundaries(100, 10_000_000)});
-                x.AddOtlpExporter((_, readerOptions) =>
-                    readerOptions.PeriodicExportingMetricReaderOptions.ExportIntervalMilliseconds = 5000);
-            });
-        return services;
-    }
-
     private static double[] GetBoundaries(double from, double to)
     {
         var current = from;
