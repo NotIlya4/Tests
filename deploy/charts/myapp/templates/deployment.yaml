@@ -39,7 +39,8 @@ spec:
           - name: DOTNET_DiagnosticPorts
             value: /diag/dotnet-monitor.sock
           ports:
-          - containerPort: 5000
+          - name: myapp
+            containerPort: 5000
           volumeMounts:
           - mountPath: /diag
             name: diagvol

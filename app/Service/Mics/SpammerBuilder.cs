@@ -15,14 +15,14 @@ public class SpammerBuilder(
     private int? _runnerExecutions;
     private int? _parallelRunners;
     private string? _testName;
-    private Func<CancellationToken, Task<ISpammerStrategy>>? _spammerStrategyFactory;
+    private SpammerStrategyFactory? _spammerStrategyFactory;
     private ISpammerParallelEngine? _spammerParallelEngine;
 
     public SpammerBuilder WithKafkaProducerStrategy(KafkaProducerStrategyOptionsView optionsView)
     {
-        IProducer<string, string> CreateProducer()
+        ProducerConfig CreateProducerConfig()
         {
-            var producerConfig = new ProducerConfig()
+            return new ProducerConfig()
             {
                 BootstrapServers = kafkaOptions.Value.BootstrapServers,
                 CompressionType = optionsView.CompressionType,
@@ -39,46 +39,18 @@ public class SpammerBuilder(
                 SocketReceiveBufferBytes = optionsView.SocketReceiveBufferBytes,
                 SocketSendBufferBytes = optionsView.SocketSendBufferBytes
             };
-            
-            return new ProducerBuilder<string, string>(producerConfig).Build();
         }
+
+        var producerContainer = new KafkaProducerContainer(CreateProducerConfig(), optionsView.SingletonProducer);
         
-        IProducer<string, string> singleton = null!;
-
-        if (optionsView.SingletonProducer)
+        _spammerStrategyFactory = async (_,_) =>
         {
-            singleton = CreateProducer();
-        }
-        
-        _spammerStrategyFactory = async _ =>
-        {
-            IProducer<string, string> producer; 
-
-            if (optionsView.SingletonProducer)
-            {
-                producer = singleton;
-            }
-            else
-            {
-                producer = CreateProducer();
-            }
-
-            var randomJitter = TimeSpan.Zero;
-            if (optionsView.StartupJitterMs.HasValue)
-            {
-                lock (Random.Shared)
-                {
-                    var jitterMs = Random.Shared.Next(optionsView.StartupJitterMs.Value);
-                    randomJitter = TimeSpan.FromMilliseconds(jitterMs);
-                }
-            }
-            
             return new KafkaProducerStrategy(
-                producer,
+                producerContainer.GetProducer(),
                 optionsView.SpammerOptionsView.TestName,
                 optionsView.SingletonTopic,
-                optionsView.Size,
-                randomJitter);
+                _ => KafkaJsonCreator.Create(optionsView.Size),
+                TimeSpan.FromMilliseconds(Random.Shared.Next(optionsView.StartupJitterMs)));
         };
         
         return this;
@@ -96,7 +68,7 @@ public class SpammerBuilder(
             await dbContext.SequentialKeyEntities.Take(1).ToListAsync(cancellationToken);
         }
         
-        _spammerStrategyFactory = async (cancellationToken) =>
+        _spammerStrategyFactory = async (_,cancellationToken) =>
         {
             await HotConnections(cancellationToken);
             
@@ -118,11 +90,11 @@ public class SpammerBuilder(
         if (pingMode == NginxPingMode.SingletonHttpClient)
         {
             var singletonPingClient = serviceProvider.GetRequiredService<NginxPingService>();
-            _spammerStrategyFactory = (_) => Task.FromResult((ISpammerStrategy)new NginxStrategy(singletonPingClient));
+            _spammerStrategyFactory = (_,_) => Task.FromResult((ISpammerStrategy)new NginxStrategy(singletonPingClient));
         }
         else
         {
-            _spammerStrategyFactory = (_) => Task.FromResult(
+            _spammerStrategyFactory = (_,_) => Task.FromResult(
                     (ISpammerStrategy)new NginxStrategy(serviceProvider.GetRequiredService<NginxPingService>()));
         }
 
@@ -137,11 +109,11 @@ public class SpammerBuilder(
     
     public SpammerBuilder WithSpammerStrategy(Func<ISpammerStrategy> spammerStrategyFactory)
     {
-        _spammerStrategyFactory = (_) => Task.FromResult(spammerStrategyFactory());
+        _spammerStrategyFactory = (_,_) => Task.FromResult(spammerStrategyFactory());
         return this;
     }
     
-    public SpammerBuilder WithSpammerStrategy(Func<CancellationToken, Task<ISpammerStrategy>> spammerStrategyFactory)
+    public SpammerBuilder WithSpammerStrategy(SpammerStrategyFactory spammerStrategyFactory)
     {
         _spammerStrategyFactory = spammerStrategyFactory;
         return this;

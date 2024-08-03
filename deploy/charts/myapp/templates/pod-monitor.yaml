@@ -12,5 +12,5 @@ spec:
     matchNames:
       - {{ .Release.Namespace }}
   podMetricsEndpoints:
-    - port: prometheus
+    - port: myapp
       interval: 5s

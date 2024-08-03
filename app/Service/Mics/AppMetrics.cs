@@ -15,21 +15,27 @@ public class AppMetrics
             RunnerExecutionDurationName,
             "asd",
             ["test_name", "runner_index"],
-            new HistogramConfiguration() { Buckets = GetBoundaries(100, 10_000_000) });
+            new HistogramConfiguration { Buckets = CreateBoundaries() });
     }
-    
-    private static double[] GetBoundaries(double from, double to)
+
+    public static double[] CreateBoundaries()
+    {
+        return GetLinearBoundaries(0, 1_000, 10)
+            .Concat(GetLinearBoundaries(1_000, 10_000, 100))
+            .Concat(GetLinearBoundaries(10_000, 100_000, 1_000))
+            .Concat(GetLinearBoundaries(100_000, 1_000_000, 10_000))
+            .Concat(GetLinearBoundaries(1_000_000, 10_000_000, 100_000))
+            .ToArray();
+    }
+
+    private static IEnumerable<double> GetLinearBoundaries(int from, int to, int step)
     {
         var current = from;
-        List<double> items = [];
-        while (to > current)
-        {
-            items.Add(current);
-            current = Math.Round(current * 1.5);
-        }
-        
-        items.Add(current);
 
-        return items.ToArray();
+        while (current < to)
+        {
+            yield return current;
+            current += step;
+        }
     }
 }

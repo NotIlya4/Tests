@@ -2,88 +2,49 @@ bases:
 - ./helmfile.base.yaml
 
 repositories:
-- name: bitnami
-  url: https://charts.bitnami.com/bitnami
 - name: kafka-ui
   url: https://provectus.github.io/kafka-ui-charts
 
 releases:
 - name: myapp1
   namespace: myapp1
-  chart: ./myapp
+  chart: ./charts/myapp
   disableValidationOnInstall: true
   needs:
   - cilium/cilium
   - traefik/traefik
-  - open-telemetry/open-telemetry
 
 - name: myapp2
   namespace: myapp2
-  chart: ./myapp
+  chart: ./charts/myapp
   disableValidationOnInstall: true
   needs:
   - cilium/cilium
   - traefik/traefik
-  - open-telemetry/open-telemetry
 
 - name: myapp3
   namespace: myapp3
-  chart: ./myapp
+  chart: ./charts/myapp
   disableValidationOnInstall: true
   needs:
   - cilium/cilium
   - traefik/traefik
-  - open-telemetry/open-telemetry
 
-- name: kafka
-  namespace: kafka
-  chart: bitnami/kafka
+- name: strimzi-operator
+  namespace: strimzi
+  chart: oci://quay.io/strimzi-helm/strimzi-kafka-operator
+  disableValidationOnInstall: true
+  version: ~0.42.0
   needs:
   - cilium/cilium
-  - traefik/traefik
-  values:
-  - kraft:
-      clusterId: jh08hbDufMo4Pr454I4zL1
-    provisioning:
-      nodeSelector:
-        node-role.kubernetes.io/kafka: "true"
-    controller:
-      resourcesPreset: none
-      podAntiAffinityPreset: hard
-    broker:
-      resourcesPreset: none
-    externalAccess:
-      enabled: true
-      controller:
-        service:
-          type: NodePort
-          nodePorts:
-          - '31412'
-          - '31265'
-          - '32353'
-    listeners:
-      client:
-        protocol: PLAINTEXT
-      controller:
-        protocol: PLAINTEXT
-      interbroker:
-        protocol: PLAINTEXT
-      external:
-        protocol: PLAINTEXT
-    extraConfig:
-      min.insync.replicas: 2
-      default.replication.factor: 3
-      replica.socket.receive.buffer.bytes: -1
-      socket.receive.buffer.bytes: -1
-      socket.send.buffer.bytes: -1
-    log4j: |
-      log4j.rootLogger=INFO, stdout
 
-      log4j.appender.stdout=org.apache.log4j.ConsoleAppender
-      log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
-      log4j.appender.stdout.layout.ConversionPattern=[%d] %p %m (%c)%n
-
-      log4j.logger.kafka.request.logger=TRACE
+- name: kafka
+  namespace: strimzi
+  chart: ./charts/strimzi-kafka
+  disableValidationOnInstall: true
+  needs:
+  - cilium/cilium
+  - strimzi/strimzi-operator
 
 - name: kafka-ui
   namespace: kafka-ui

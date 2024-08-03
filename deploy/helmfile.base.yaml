@@ -3,8 +3,6 @@ repositories:
   url: https://prometheus-community.github.io/helm-charts
 - name: traefik
   url: https://traefik.github.io/charts
-- name: open-telemetry
-  url: https://open-telemetry.github.io/opentelemetry-helm-charts
 - name: jetstack
   url: https://charts.jetstack.io
 - name: cilium
@@ -33,16 +31,6 @@ releases:
   - cilium/cilium
   values:
   - ./values/cert-manager.yaml
-
-- name: open-telemetry
-  namespace: open-telemetry
-  chart: open-telemetry/opentelemetry-operator
-  disableValidationOnInstall: true
-  needs:
-  - cert-manager/cert-manager
-  - cilium/cilium
-  values:
-  - ./values/open-telemetry.yaml
 
 - name: loki
   namespace: loki
@@ -95,9 +83,8 @@ releases:
 
 - name: myapp
   namespace: myapp
-  chart: ./myapp
+  chart: ./charts/myapp
   disableValidationOnInstall: true
   needs:
   - cilium/cilium
   - traefik/traefik
-  - open-telemetry/open-telemetry

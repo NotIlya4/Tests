@@ -40,7 +40,8 @@ public class KafkaProducerStrategyOptionsView
 
     public int? BatchNumMessages { get; set; } = null;
 
-    public int? StartupJitterMs { get; set; } = null;
+    [DefaultValue(0)]
+    public int StartupJitterMs { get; set; } = 0;
 
     public int? SocketReceiveBufferBytes { get; set; } = null;
 

@@ -70,7 +70,7 @@ public class TestsController
 
         if (!optionsView.IsDbContextStrategy)
         {
-            _spammerBuilder.WithSpammerStrategy((_) => optionsView.PostgresStrategyType.CreateStrategy(
+            _spammerBuilder.WithSpammerStrategy((_,_) => optionsView.PostgresStrategyType.CreateStrategy(
                 _postgresDependencyBox.Conn,
                 optionsView.DbContextStrategyOptions.DataCreationStrategyOptions.CreateStrategy(),
                 optionsView.SelectStrategyType,

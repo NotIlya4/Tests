@@ -6,14 +6,12 @@ namespace Spam;
 
 public class Spammer(SpammerOptions options)
 {
-    private readonly int _parallelRunners = options.ParallelRunners;
-    private readonly int _runnerExecutions = options.RunnerExecutions;
     private readonly ILogger<Spammer>? _logger = options.Logger;
     private readonly ISpammerMetrics? _metrics = options.Metrics;
     
     public async Task<SpammerRunResult> Run(CancellationToken cancellationToken)
     {
-        var preparationStopwatch = Stopwatch.StartNew();
+        var preparationStartTime = Stopwatch.GetTimestamp();
 
         var spammers = new ConcurrentDictionary<int, ISpammerStrategy>();
 
@@ -21,15 +19,14 @@ public class Spammer(SpammerOptions options)
             options.ParallelRunners,
             async i =>
             {
-                spammers[i] = await options.SpammerStrategyFactory(cancellationToken);
+                spammers[i] = await options.SpammerStrategyFactory(i, cancellationToken);
             },
             cancellationToken);
-        
-        preparationStopwatch.Stop();
-        var preparationTime = preparationStopwatch.Elapsed;
+
+        var preparationTime = Stopwatch.GetElapsedTime(preparationStartTime);
         _logger?.LogInformation("Preparations finished in {PreparationTime}", preparationTime);
 
-        var runStopwatch = Stopwatch.StartNew();
+        var runStartTime = Stopwatch.GetTimestamp();
 
         await options.SpammerParallelEngine.ParallelRun(
             options.ParallelRunners,
@@ -54,12 +51,11 @@ public class Spammer(SpammerOptions options)
                             _logger?.LogError(e, "Exception during RunCore occured in {i} runner", i);
                         }
                     },
-                    _runnerExecutions);
+                    options.RunnerExecutions);
             },
             cancellationToken);
         
-        runStopwatch.Stop();
-        var runElapsed = runStopwatch.Elapsed;
+        var runElapsed = Stopwatch.GetElapsedTime(runStartTime);
         _logger?.LogInformation("Run finished in {RunElapsed}", runElapsed);
 
         return new SpammerRunResult
@@ -71,11 +67,13 @@ public class Spammer(SpammerOptions options)
 
     private async Task DecorateWithMetrics(Func<RunnerExecutionContext, Task> action, RunnerExecutionContext context)
     {
-        var stopwatch = Stopwatch.StartNew();
+        var startTime = Stopwatch.GetTimestamp();
 
         await action(context);
-        
-        stopwatch.Stop();
-        _metrics?.RecordExecutionProcessed(stopwatch.Elapsed, context);
+
+        var elapsed = Stopwatch.GetElapsedTime(startTime);
+        _metrics?.RecordExecutionProcessed(elapsed, context);
+        _logger?.LogDebug("Runner {RunnerIndex}, run {Run}, elapsed {Elapsed}", context.RunnerIndex,
+            context.CurrentExecution, elapsed);
     }
 }
