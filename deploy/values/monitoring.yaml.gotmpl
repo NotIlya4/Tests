@@ -40,7 +40,10 @@ grafana:
     custom:
       spammer:
         json: |
-          {{- readFile "../spammer-dashboard.json" | nindent 10 }}
+          {{- readFile "../dashboards/spammer-dashboard.json" | nindent 10 }}
+      strimzi-kafka:
+        json: |
+          {{- readFile "../dashboards/strimzi-kafka.json" | nindent 10 }}
 
   nodeSelector:
     node-role.kubernetes.io/worker: "true"
