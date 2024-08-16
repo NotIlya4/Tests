@@ -129,4 +129,19 @@ public class TestsController
         
         return SpammerResultView.FromModel(result);
     }
+
+    [HttpPost("s3")]
+    public async Task<SpammerResultView> TestS3(
+        S3StrategyOptionsView optionsView,
+        CancellationToken cancellationToken)
+    {
+        var spammer = _spammerBuilder
+            .WithS3Strategy(optionsView)
+            .ApplySpammerOptions(optionsView.SpammerOptionsView)
+            .Build();
+
+        var result = await spammer.Run(cancellationToken);
+
+        return SpammerResultView.FromModel(result);
+    }
 }

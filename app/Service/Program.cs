@@ -6,6 +6,7 @@ var services = builder.Services;
 
 services.AddOptions();
 services.AddOptions<KafkaOptions>().BindConfiguration("Kafka");
+services.AddOptions<S3Options>().BindConfiguration("S3");
 services.AddAspNetCoreStaff();
 services.AddDependencyBox();
 services.AddMics();

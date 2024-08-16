@@ -44,8 +44,8 @@ module "node1" {
   nat = true
 
   instance_resources = {
-    cores = 16
-    memory = 16
+    cores = 8
+    memory = 8
     disk = {
       size = 100
       type = "network-hdd"
@@ -66,8 +66,8 @@ module "node2" {
   nat = true
 
   instance_resources = {
-    cores = 6
-    memory = 12
+    cores = 4
+    memory = 8
     disk = {
       size = 186
       type = "network-ssd-nonreplicated"
@@ -88,8 +88,8 @@ module "node3" {
   nat = true
 
   instance_resources = {
-    cores = 6
-    memory = 12
+    cores = 4
+    memory = 8
     disk = {
       size = 186
       type = "network-ssd-nonreplicated"
@@ -110,13 +110,36 @@ module "node4" {
   nat = true
 
   instance_resources = {
-    cores = 6
-    memory = 12
+    cores = 4
+    memory = 8
     disk = {
       size = 186
       type = "network-ssd-nonreplicated"
     }
   }
+}
+
+resource "yandex_iam_service_account" "sa" {
+  folder_id = module.yc_defaults.folder.id
+  name      = local.name
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "sa-editor" {
+  folder_id = module.yc_defaults.folder.id
+  role      = "storage.admin"
+  member    = "serviceAccount:${yandex_iam_service_account.sa.id}"
+}
+
+resource "yandex_iam_service_account_static_access_key" "sa-static-key" {
+  service_account_id = yandex_iam_service_account.sa.id
+  description        = "static access key for object storage"
+}
+
+resource "yandex_storage_bucket" "bucket" {
+  access_key = yandex_iam_service_account_static_access_key.sa-static-key.access_key
+  secret_key = yandex_iam_service_account_static_access_key.sa-static-key.secret_key
+  bucket = "spammer-${local.name}"
+  force_destroy = true
 }
 
 module "lb" {
@@ -188,4 +211,14 @@ module "cluster_ip"{
 
   path = "${local.name}/cluster-ip.txt"
   value = module.node1.nat_ip_address
+}
+
+module "bucket" {
+  source = "../modules/output-write"
+
+  path = "${local.name}/bucket.txt"
+  value = yamlencode({
+    access_key = yandex_iam_service_account_static_access_key.sa-static-key.access_key
+    secret_key = yandex_iam_service_account_static_access_key.sa-static-key.secret_key
+  })
 }

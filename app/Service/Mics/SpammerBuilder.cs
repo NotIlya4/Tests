@@ -1,4 +1,6 @@
-﻿using Confluent.Kafka;
+﻿using Amazon.Runtime;
+using Amazon.S3;
+using Confluent.Kafka;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Service.Enums;
@@ -10,6 +12,7 @@ public class SpammerBuilder(
     ILogger<Spammer> logger,
     AppMetrics appMetrics,
     IOptions<KafkaOptions> kafkaOptions,
+    IOptions<S3Options> s3Options,
     IServiceProvider serviceProvider)
 {
     private int? _runnerExecutions;
@@ -18,17 +21,31 @@ public class SpammerBuilder(
     private SpammerStrategyFactory? _spammerStrategyFactory;
     private ISpammerParallelEngine? _spammerParallelEngine;
 
+    public SpammerBuilder WithS3Strategy(S3StrategyOptionsView s3StrategyOptionsView)
+    {
+        var s3Client = new AmazonS3Client(
+            new BasicAWSCredentials(s3Options.Value.AccessKey, s3Options.Value.SecretKey),
+            new AmazonS3Config()
+            {
+                ServiceURL = "https://storage.yandexcloud.net/"
+            });
+
+        _spammerStrategyFactory = async (_, _) => new S3Strategy(s3Client, s3Options.Value.BucketName, KafkaJsonCreator.Create(s3StrategyOptionsView.Size));
+        
+        return this;
+    }
+    
     public SpammerBuilder WithKafkaProducerStrategy(KafkaProducerStrategyOptionsView optionsView)
     {
-        ProducerConfig CreateProducerConfig()
+        ProducerConfig CreateProducerConfig(string identity)
         {
-            return new ProducerConfig()
+            var config = new ProducerConfig()
             {
                 BootstrapServers = kafkaOptions.Value.BootstrapServers,
                 CompressionType = optionsView.CompressionType,
                 EnableIdempotence = optionsView.EnableIdempotence,
                 Acks = optionsView.Acks,
-                ClientId = $"{optionsView.SpammerOptionsView.TestName}-client",
+                ClientId = $"{optionsView.SpammerOptionsView.TestName}-client-{identity}",
                 MessageMaxBytes = optionsView.MaxMsgSize == -1 ? optionsView.Size + 100 : optionsView.MaxMsgSize,
                 SocketNagleDisable = optionsView.SocketNagleDisable,
                 MaxInFlight = optionsView.MaxInFlight,
@@ -37,18 +54,25 @@ public class SpammerBuilder(
                 BatchSize = optionsView.BatchSize,
                 BatchNumMessages = optionsView.BatchNumMessages,
                 SocketReceiveBufferBytes = optionsView.SocketReceiveBufferBytes,
-                SocketSendBufferBytes = optionsView.SocketSendBufferBytes
+                SocketSendBufferBytes = optionsView.SocketSendBufferBytes,
+                StatisticsIntervalMs = 1000,
+                Partitioner = optionsView.Partitioner
             };
+            if (optionsView.DebugLogs)
+                config.Debug = "broker,topic,msg";
+
+            return config;
         }
 
-        var producerContainer = new KafkaProducerContainer(CreateProducerConfig(), optionsView.SingletonProducer);
+        var producerContainer = new KafkaProducerContainer(CreateProducerConfig, optionsView.SingletonProducer);
         
-        _spammerStrategyFactory = async (_,_) =>
+        _spammerStrategyFactory = async (runnerIndex,_) =>
         {
             return new KafkaProducerStrategy(
-                producerContainer.GetProducer(),
+                producerContainer.GetProducer(runnerIndex),
                 optionsView.SpammerOptionsView.TestName,
-                optionsView.SingletonTopic,
+                optionsView.TopicPoolSize,
+                optionsView.GenerateGuidKey,
                 _ => KafkaJsonCreator.Create(optionsView.Size),
                 TimeSpan.FromMilliseconds(Random.Shared.Next(optionsView.StartupJitterMs)));
         };
@@ -166,7 +190,8 @@ public class SpammerBuilder(
             SpammerParallelEngine = _spammerParallelEngine,
             Metrics = new SpammerMetrics(appMetrics, _testName, nameof(Spammer)),
             ParallelRunners = _parallelRunners.Value,
-            RunnerExecutions = _runnerExecutions.Value
+            RunnerExecutions = _runnerExecutions.Value,
+            TestName = _testName
         });
     }
 }

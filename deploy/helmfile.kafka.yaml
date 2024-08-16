@@ -10,6 +10,7 @@ releases:
   namespace: myapp1
   chart: ./charts/myapp
   disableValidationOnInstall: true
+  installed: false
   needs:
   - cilium/cilium
   - traefik/traefik
@@ -18,6 +19,7 @@ releases:
   namespace: myapp2
   chart: ./charts/myapp
   disableValidationOnInstall: true
+  installed: false
   needs:
   - cilium/cilium
   - traefik/traefik
@@ -26,6 +28,7 @@ releases:
   namespace: myapp3
   chart: ./charts/myapp
   disableValidationOnInstall: true
+  installed: false
   needs:
   - cilium/cilium
   - traefik/traefik

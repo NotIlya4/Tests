@@ -7,17 +7,19 @@ public class KafkaProducerStrategy : ISpammerStrategy
 {
     private readonly IProducer<string, string> _producer;
     private readonly string _topicBaseName;
-    private readonly bool _singletonTopic;
+    private readonly int _topicPoolSize;
+    private readonly bool _generateGuidKey;
     private readonly Func<RunnerExecutionContext, string> _messageProvider;
     private readonly TimeSpan _beginJitter;
     private bool _finishedBeginJitter = false;
 
-    public KafkaProducerStrategy(IProducer<string, string> producer, string topicBaseName, bool singletonTopic,
+    public KafkaProducerStrategy(IProducer<string, string> producer, string topicBaseName, int topicPoolSize, bool generateGuidKey,
         Func<RunnerExecutionContext, string> messageProvider, TimeSpan beginJitter)
     {
         _producer = producer;
         _topicBaseName = topicBaseName;
-        _singletonTopic = singletonTopic;
+        _topicPoolSize = topicPoolSize;
+        _generateGuidKey = generateGuidKey;
         _messageProvider = messageProvider;
         _beginJitter = beginJitter;
     }
@@ -31,14 +33,7 @@ public class KafkaProducerStrategy : ISpammerStrategy
         }
 
         var msg = _messageProvider(context);
-        if (_singletonTopic)
-        {
-            await _producer.ProduceAsync(_topicBaseName, new Message<string, string>() { Value = msg }, cancellationToken);
-        }
-        else
-        {
-            await _producer.ProduceAsync($"{_topicBaseName}-{context.RunnerIndex}",
-                new Message<string, string>() { Value = msg }, cancellationToken);
-        }
+        await _producer.ProduceAsync($"{_topicBaseName}-{Random.Shared.Next(_topicPoolSize)}",
+            new Message<string, string>() { Key = _generateGuidKey ? Guid.NewGuid().ToString() : null!, Value = msg }, cancellationToken);
     }
 }

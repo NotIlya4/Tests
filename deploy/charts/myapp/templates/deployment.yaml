@@ -34,6 +34,10 @@ spec:
             value: {{ .Values.postgres.host }}
           - name: NginxAddress
             value: {{ .Values.nginx.address }}
+          - name: S3__AccessKey
+            value: {{ .Values.s3.access_key }}
+          - name: S3__SecretKey
+            value: {{ .Values.s3.secret_key }}
           - name: Logging__LogLevel__Default
             value: {{ .Values.default_loglevel }}
           - name: DOTNET_DiagnosticPorts

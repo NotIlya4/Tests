@@ -4,6 +4,7 @@ namespace Spam;
 
 public class SpammerOptions
 {
+    public required string TestName { get; init; }
     public required int RunnerExecutions { get; init; }
     public required int ParallelRunners { get; init; }
     public required SpammerStrategyFactory SpammerStrategyFactory { get; init; }

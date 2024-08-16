@@ -44,6 +44,9 @@ grafana:
       strimzi-kafka:
         json: |
           {{- readFile "../dashboards/strimzi-kafka.json" | nindent 10 }}
+      librdkafka-application:
+        json: |
+          {{- readFile "../dashboards/librdkafka-application.json" | nindent 10 }}
 
   nodeSelector:
     node-role.kubernetes.io/worker: "true"

@@ -24,7 +24,7 @@ public class Spammer(SpammerOptions options)
             cancellationToken);
 
         var preparationTime = Stopwatch.GetElapsedTime(preparationStartTime);
-        _logger?.LogInformation("Preparations finished in {PreparationTime}", preparationTime);
+        _logger?.LogInformation("Test \"{TestName}\", preparations finished in {PreparationTime}", options.TestName, preparationTime);
 
         var runStartTime = Stopwatch.GetTimestamp();
 
@@ -48,7 +48,7 @@ public class Spammer(SpammerOptions options)
                         }
                         catch (Exception e)
                         {
-                            _logger?.LogError(e, "Exception during RunCore occured in {i} runner", i);
+                            _logger?.LogError(e, "Test \"{TestName}\", exception during RunCore occured in {i} runner", options.TestName, i);
                         }
                     },
                     options.RunnerExecutions);
@@ -56,7 +56,7 @@ public class Spammer(SpammerOptions options)
             cancellationToken);
         
         var runElapsed = Stopwatch.GetElapsedTime(runStartTime);
-        _logger?.LogInformation("Run finished in {RunElapsed}", runElapsed);
+        _logger?.LogInformation("Test \"{TestName}\", run finished in {RunElapsed}", options.TestName, runElapsed);
 
         return new SpammerRunResult
         {
@@ -73,7 +73,7 @@ public class Spammer(SpammerOptions options)
 
         var elapsed = Stopwatch.GetElapsedTime(startTime);
         _metrics?.RecordExecutionProcessed(elapsed, context);
-        _logger?.LogDebug("Runner {RunnerIndex}, run {Run}, elapsed {Elapsed}", context.RunnerIndex,
+        _logger?.LogDebug("Test \"{TestName}\", runner {RunnerIndex}, run {Run}, elapsed {Elapsed}", options.TestName, context.RunnerIndex,
             context.CurrentExecution, elapsed);
     }
 }

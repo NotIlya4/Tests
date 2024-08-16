@@ -118,9 +118,9 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "avg ((rate(runner_execution_duration_us_sum{pod=~\"$pod\", test_name=~\"$test_name\"}[$__rate_interval]) / rate(runner_execution_duration_us_count{pod=~\"$pod\", test_name=~\"$test_name\"}[$__rate_interval])) > -1e12) by (pod, test_name, spammer_implementation_class)",
+          "expr": "avg by (pod, test_name) ((idelta(runner_execution_duration_us_sum{pod=~\"$pod\", test_name=~\"$test_name\"}[$__rate_interval]) / idelta(runner_execution_duration_us_count{pod=~\"$pod\", test_name=~\"$test_name\"}[$__rate_interval])))",
           "instant": false,
-          "legendFormat": "{{test_name}} - {{spammer_implementation_class}} - {{pod}}",
+          "legendFormat": "{{test_name}} - {{pod}}",
           "range": true,
           "refId": "A"
         }
@@ -215,9 +215,9 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "avg (rate (runner_execution_duration_us_count{pod=~\"$pod\", test_name=~\"$test_name\"}[20s])) by (pod, test_name, spammer_implementation_class)",
+          "expr": "avg by (pod, test_name) (irate (runner_execution_duration_us_count{pod=~\"$pod\", test_name=~\"$test_name\"}[$__rate_interval]))",
           "instant": false,
-          "legendFormat": "{{test_name}} - {{spammer_implementation_class}} - {{pod}}",
+          "legendFormat": "{{test_name}} - {{pod}}",
           "range": true,
           "refId": "A"
         }
@@ -312,9 +312,9 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "avg (histogram_quantile(0.999, rate(runner_execution_duration_us_bucket{pod=~\"$pod\", test_name=~\"$test_name\"}[$__rate_interval])) > -1e12) by (pod, test_name, spammer_implementation_class) ",
+          "expr": "avg by (pod, test_name) (histogram_quantile(0.999, idelta(runner_execution_duration_us_bucket{pod=~\"$pod\", test_name=~\"$test_name\"}[$__rate_interval])))",
           "instant": false,
-          "legendFormat": "{{test_name}} - {{spammer_implementation_class}} - {{pod}}",
+          "legendFormat": "{{test_name}} - {{pod}}",
           "range": true,
           "refId": "A"
         }
@@ -409,9 +409,9 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum (rate (runner_execution_duration_us_count{pod=~\"$pod\", test_name=~\"$test_name\"}[20s])) by (pod, test_name, spammer_implementation_class)",
+          "expr": "sum by (pod, test_name) (irate (runner_execution_duration_us_count{pod=~\"$pod\", test_name=~\"$test_name\"}[$__rate_interval]))",
           "instant": false,
-          "legendFormat": "{{test_name}} - {{spammer_implementation_class}} - {{pod}}",
+          "legendFormat": "{{test_name}} - {{pod}}",
           "range": true,
           "refId": "A"
         }
@@ -519,10 +519,10 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "avg ((rate(runner_execution_duration_us_sum{pod=~\"$pod\", test_name=~\"$test_name\"}[$__rate_interval]) / rate(runner_execution_duration_us_count{pod=~\"$pod\", test_name=~\"$test_name\"}[$__rate_interval])) > -1e12) by (pod, test_name, runner_index, spammer_implementation_class)",
+          "expr": "(idelta(runner_execution_duration_us_sum{pod=~\"$pod\", test_name=~\"$test_name\"}[$__rate_interval]) / idelta(runner_execution_duration_us_count{pod=~\"$pod\", test_name=~\"$test_name\"}[$__rate_interval]))",
           "hide": false,
           "instant": false,
-          "legendFormat": "{{runner_index}} - {{test_name}} - {{spammer_implementation_class}} - {{pod}}",
+          "legendFormat": "{{runner_index}} - {{test_name}} - {{pod}}",
           "range": true,
           "refId": "A"
         }
@@ -617,9 +617,9 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "avg (rate (runner_execution_duration_us_count{pod=~\"$pod\", test_name=~\"$test_name\"}[20s])) by (pod, test_name, runner_index, spammer_implementation_class)",
+          "expr": "irate (runner_execution_duration_us_count{pod=~\"$pod\", test_name=~\"$test_name\"}[$__rate_interval])",
           "instant": false,
-          "legendFormat": "{{runner_index}} - {{test_name}} - {{spammer_implementation_class}} - {{pod}}",
+          "legendFormat": "{{runner_index}} - {{test_name}} - {{pod}}",
           "range": true,
           "refId": "A"
         }
@@ -714,9 +714,9 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "avg (histogram_quantile(0.999, rate(runner_execution_duration_us_bucket{pod=~\"$pod\", test_name=~\"$test_name\"}[$__rate_interval])) > -1e12) by (pod, test_name, runner_index, spammer_implementation_class) ",
+          "expr": "histogram_quantile(0.999, idelta(runner_execution_duration_us_bucket{pod=~\"$pod\", test_name=~\"$test_name\"}[$__rate_interval]))",
           "instant": false,
-          "legendFormat": "{{runner_index}} - {{test_name}} - {{spammer_implementation_class}} - {{pod}}",
+          "legendFormat": "{{runner_index}} - {{test_name}} - {{pod}}",
           "range": true,
           "refId": "A"
         }
@@ -725,7 +725,7 @@
       "type": "timeseries"
     }
   ],
-  "refresh": "",
+  "refresh": "5s",
   "schemaVersion": 39,
   "tags": [],
   "templating": {
@@ -766,10 +766,10 @@
         "current": {
           "selected": true,
           "text": [
-            "sanity"
+            "All"
           ],
           "value": [
-            "sanity"
+            "$__all"
           ]
         },
         "datasource": {
@@ -797,7 +797,7 @@
     ]
   },
   "time": {
-    "from": "now-5m",
+    "from": "now-15m",
     "to": "now"
   },
   "timepicker": {},

@@ -1,0 +1,1 @@
+﻿This code has been taken from https://github.com/confluentinc/jmx-monitoring-stacks/tree/main/jmxexporter-prometheus-grafana/librdkafka/common
