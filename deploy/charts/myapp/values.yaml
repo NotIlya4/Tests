@@ -3,7 +3,11 @@ pod:
   image: notilya4/db-tests.spammer:latest
   
   nodeSelector:
-    node-role.kubernetes.io/worker: "true"
+    node.kubernetes.io/role: worker
+  
+  resources:
+    requests:
+      cpu: 400m
 
 sql_server:
   host: sql-server.sql-server,1433
@@ -22,3 +26,4 @@ s3:
   secret_key:
 
 default_loglevel: Warning
+spammer_loglevel: Warning

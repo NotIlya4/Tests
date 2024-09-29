@@ -8,3 +8,6 @@ destroy path:
 
 ssh path:
     ssh -o StrictHostKeychecking=no ubuntu@$(cat $(python ./find_output_folder.py --no-json)/{{path}}/nat_ip_address.txt) -i $(python ./find_output_folder.py --no-json)/ssh.key
+
+yc-kubecontext name:
+    yc managed-kubernetes cluster get-credentials {{name}} --external --force

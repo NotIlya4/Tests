@@ -1,0 +1,6 @@
+controller:
+  ingressClassResource:
+    default: true
+  config:
+    proxy-read-timeout: 900
+    proxy-send-timeout: 900

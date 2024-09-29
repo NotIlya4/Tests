@@ -1,0 +1,21 @@
+compactor:
+  nodeSelector:
+    node.kubernetes.io/role: worker
+gateway:
+  nodeSelector:
+    node.kubernetes.io/role: worker
+distributor:
+  nodeSelector:
+    node.kubernetes.io/role: worker
+ingester:
+  nodeSelector:
+    node.kubernetes.io/role: worker
+querier:
+  nodeSelector:
+    node.kubernetes.io/role: worker
+queryFrontend:
+  nodeSelector:
+    node.kubernetes.io/role: worker
+queryScheduler:
+  nodeSelector:
+    node.kubernetes.io/role: worker

@@ -2,6 +2,7 @@
 using System.Text.Json.Serialization;
 using Microsoft.Data.SqlClient;
 using Npgsql;
+using Service.Batching;
 
 namespace Service;
 
@@ -126,5 +127,13 @@ public static class AppExtensions
         }
 
         return builder;
+    }
+
+    public static IServiceCollection AddBatching(this IServiceCollection services)
+    {
+        return services
+            .AddSingleton<IWaitProvider, WaitProvider>()
+            .AddSingleton<IDateTimeProvider, DefaultDateTimeProvider>()
+            .AddSingleton<IBatchDataLoaderFactory, BatchDataLoaderFactory>();
     }
 }

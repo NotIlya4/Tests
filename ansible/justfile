@@ -30,8 +30,11 @@ k3s-config name:
             --ip $({{pythonPath}} ./scripts/read_cluster_ip.py \
             --name {{name}}))"
 
-dns-lb-record name:
+dns-lb-record-specific name:
     {{pythonPath}} ./scripts/technitium_dns_record_specific.py --name {{name}}
+
+dns-lb-record ip:
+    {{pythonPath}} ./scripts/technitium_dns_record.py --host krupcov.ru --ip {{ip}}
 
 apply-labels name:
     {{pythonPath}} ./scripts/apply_k3s_labels.py --name {{name}}

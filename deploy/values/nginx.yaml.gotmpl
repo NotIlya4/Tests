@@ -13,14 +13,22 @@ serverBlock: |-
   access_log off;
 
 resourcesPreset: none
+resources:
+  requests:
+    cpu: 100m
 
 tls:
   enabled: false
 
 nodeSelector:
-  node-role.kubernetes.io/worker: "true"
+  node.kubernetes.io/role: worker
 
 staticSiteConfigmap: nginx-html
+
+ingress:
+  enabled: true
+  hostname: nginx.krupcov.ru
+  ingressClassName: nginx
 
 extraDeploy:
   - apiVersion: v1

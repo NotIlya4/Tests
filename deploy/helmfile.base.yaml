@@ -13,6 +13,9 @@ releases:
   namespace: cilium
   chart: cilium/cilium
   disableValidationOnInstall: true
+  values:
+  - operator:
+      replicas: 1
 
 - name: traefik
   namespace: traefik
@@ -38,27 +41,7 @@ releases:
   needs:
   - cilium/cilium
   values:
-  - compactor:
-      nodeSelector:
-        node-role.kubernetes.io/worker: "true"
-    gateway:
-      nodeSelector:
-        node-role.kubernetes.io/worker: "true"
-    distributor:
-      nodeSelector:
-        node-role.kubernetes.io/worker: "true"
-    ingester:
-      nodeSelector:
-        node-role.kubernetes.io/worker: "true"
-    querier:
-      nodeSelector:
-        node-role.kubernetes.io/worker: "true"
-    queryFrontend:
-      nodeSelector:
-        node-role.kubernetes.io/worker: "true"
-    queryScheduler:
-      nodeSelector:
-        node-role.kubernetes.io/worker: "true"
+  - ./values/loki.yaml
 
 - name: monitoring
   namespace: monitoring

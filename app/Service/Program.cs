@@ -13,6 +13,7 @@ services.AddMics();
 services.AddNginxStrategyServices(builder.Configuration);
 services.AddTransient<SpammerBuilder>();
 services.AddMetrics();
+services.AddBatching();
 
 var app = builder.Build();
 

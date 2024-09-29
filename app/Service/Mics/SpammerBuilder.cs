@@ -1,14 +1,17 @@
-﻿using Amazon.Runtime;
+﻿using System.Diagnostics;
+using Amazon.Runtime;
 using Amazon.S3;
 using Confluent.Kafka;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Service.Batching;
 using Service.Enums;
 using Spam;
 
 namespace Service;
 
 public class SpammerBuilder(
+    IBatchDataLoaderFactory batchDataLoaderFactory,
     ILogger<Spammer> logger,
     AppMetrics appMetrics,
     IOptions<KafkaOptions> kafkaOptions,
@@ -21,6 +24,54 @@ public class SpammerBuilder(
     private SpammerStrategyFactory? _spammerStrategyFactory;
     private ISpammerParallelEngine? _spammerParallelEngine;
 
+    public SpammerBuilder WithBatchingStrategy(BatchingOptionsView batchingOptionsView)
+    {
+        var metrics = new BatchingMetrics(appMetrics, batchingOptionsView.SpammerOptionsView.TestName);
+        var batchDataLoader = batchDataLoaderFactory.Create(
+            batchingOptionsView.MaxBatchSize,
+            TimeSpan.FromMilliseconds(batchingOptionsView.LingerMs),
+            batchingOptionsView.SpammerOptionsView.TestName,
+            batchingOptionsView.UseYieldInsteadOfDelay,
+            batchingOptionsView.IsTaskDelay
+                ? BatchDataLoaderDataProvider<string, string>.FromAsyncFunc(async (x, ct) =>
+                {
+                    var a = 1;
+                    for (int i = 0; i < batchingOptionsView.InnerSpinLoops; i++)
+                    {
+                        if (a == 1)
+                            a *= 2;
+                        else
+                            a /= 2;
+                    }
+
+                    var start = Stopwatch.GetTimestamp();
+                    await Task.Delay(batchingOptionsView.SleepMs, ct);
+                    metrics.ReportStrategySleep(Stopwatch.GetElapsedTime(start));
+                    
+                    return x.ToDictionary(x => x, x => x);
+                })
+                : BatchDataLoaderDataProvider<string, string>.FromSyncFunc(x =>
+                {
+                    var a = 1;
+                    for (int i = 0; i < batchingOptionsView.InnerSpinLoops; i++)
+                    {
+                        if (a == 1)
+                            a *= 2;
+                        else
+                            a /= 2;
+                    }
+                    
+                    var start = Stopwatch.GetTimestamp();
+                    Thread.Sleep(batchingOptionsView.SleepMs);
+                    metrics.ReportStrategySleep(Stopwatch.GetElapsedTime(start));
+                    
+                    return x.ToDictionary(x => x, x => x);
+                }));
+
+        _spammerStrategyFactory = async (_, _) => new BatchingStrategy(batchDataLoader, batchingOptionsView.SpinLoops);
+        return this;
+    }
+    
     public SpammerBuilder WithS3Strategy(S3StrategyOptionsView s3StrategyOptionsView)
     {
         var s3Client = new AmazonS3Client(

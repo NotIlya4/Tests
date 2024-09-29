@@ -1,11 +1,13 @@
 grafana:
+  resources:
+    requests:
+      cpu: 100m
 
   ingress:
     enabled: true
-    annotations:
-      traefik.ingress.kubernetes.io/router.entrypoints: web
     hosts:
     - grafana.krupcov.ru
+    ingressClassName: nginx
 
   forceDeployDashboards: true
   defaultDashboardsEnabled: true
@@ -49,18 +51,27 @@ grafana:
           {{- readFile "../dashboards/librdkafka-application.json" | nindent 10 }}
 
   nodeSelector:
-    node-role.kubernetes.io/worker: "true"
+    node.kubernetes.io/role: worker
 
 alertmanager:
   alertmanagerSpec:
+    resources:
+      requests:
+        cpu: 100m
     nodeSelector:
-      node-role.kubernetes.io/worker: "true"
+      node.kubernetes.io/role: worker
 
 prometheus:
   prometheusSpec:
+    resources:
+      requests:
+        cpu: 100m
     nodeSelector:
-      node-role.kubernetes.io/worker: "true"
+      node.kubernetes.io/role: worker
 
 prometheusOperator:
+  resources:
+    requests:
+      cpu: 100m
   nodeSelector:
-    node-role.kubernetes.io/worker: "true"
+    node.kubernetes.io/role: worker

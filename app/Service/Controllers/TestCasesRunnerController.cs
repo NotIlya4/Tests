@@ -144,4 +144,19 @@ public class TestsController
 
         return SpammerResultView.FromModel(result);
     }
+    
+    [HttpPost("batching")]
+    public async Task<SpammerResultView> TestBatching(
+        BatchingOptionsView optionsView,
+        CancellationToken cancellationToken)
+    {
+        var spammer = _spammerBuilder
+            .WithBatchingStrategy(optionsView)
+            .ApplySpammerOptions(optionsView.SpammerOptionsView)
+            .Build();
+
+        var result = await spammer.Run(cancellationToken);
+
+        return SpammerResultView.FromModel(result);
+    }
 }

@@ -77,4 +77,4 @@ releases:
       - name: DYNAMIC_CONFIG_ENABLED
         value: 'true'
     nodeSelector:
-      node-role.kubernetes.io/worker: "true"
+      node.kubernetes.io/role: worker

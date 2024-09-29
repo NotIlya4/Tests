@@ -26,6 +26,8 @@ spec:
           env:
           - name: ASPNETCORE_URLS
             value: http://*:5000
+          - name: ASPNETCORE_ENVIRONMENT
+            value: Container
           - name: Kafka__BootstrapServers
             value: {{ .Values.kafka.bootstrap_servers }}
           - name: SqlServerConn__Server
@@ -40,6 +42,8 @@ spec:
             value: {{ .Values.s3.secret_key }}
           - name: Logging__LogLevel__Default
             value: {{ .Values.default_loglevel }}
+          - name: Logging__LogLevel__Spam.Spammer
+            value: {{ .Values.spammer_loglevel }}
           - name: DOTNET_DiagnosticPorts
             value: /diag/dotnet-monitor.sock
           ports:
