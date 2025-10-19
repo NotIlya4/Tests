@@ -20,7 +20,7 @@ provider "yandex" {
 }
 
 locals {
-    name = "mkube"
+    name = "yc-kube"
 }
 
 module "defaults" {
@@ -49,8 +49,8 @@ module "node_group" {
   size = 1
 
   resources = {
-    cpu = 6
-    memory = 6
+    cpu = 4
+    memory = 4
   }
 
   boot_disk = {
