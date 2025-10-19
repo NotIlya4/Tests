@@ -11,7 +11,6 @@ public interface IBatchDataLoaderFactory
 }
 
 public class BatchDataLoaderFactory(
-    IDateTimeProvider dateTimeProvider,
     IWaitProvider waitProvider,
     AppMetrics appMetrics) : IBatchDataLoaderFactory
 {
@@ -26,7 +25,6 @@ public class BatchDataLoaderFactory(
             maxBatchSize,
             linger,
             dataProvider,
-            dateTimeProvider,
             waitProvider,
             new BatchingMetrics(appMetrics, testName),
             useYieldInsteadOfDelay);

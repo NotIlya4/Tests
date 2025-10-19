@@ -11,7 +11,6 @@ public class BatchDataLoader<TKey, TEntity>(
     int maxBatchSize,
     TimeSpan linger,
     BatchDataLoaderDataProvider<TKey, TEntity> dataProvider,
-    IDateTimeProvider dateTimeProvider,
     IWaitProvider waitProvider,
     IBatchingMetrics batchingMetrics,
     bool useYieldInsteadOfDelay) : IBatchDataLoader<TKey, TEntity>
@@ -20,7 +19,6 @@ public class BatchDataLoader<TKey, TEntity>(
         maxBatchSize,
         linger,
         dataProvider,
-        dateTimeProvider,
         waitProvider,
         batchingMetrics,
         useYieldInsteadOfDelay);
@@ -41,7 +39,6 @@ public class BatchDataLoader<TKey, TEntity>(
                     maxBatchSize,
                     linger,
                     dataProvider,
-                    dateTimeProvider,
                     waitProvider,
                     batchingMetrics,
                     useYieldInsteadOfDelay);

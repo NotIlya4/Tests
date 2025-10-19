@@ -13,7 +13,13 @@ public class BatchingOptionsView
     public bool UseYieldInsteadOfDelay { get; set; } = false;
 
     [DefaultValue(15)]
-    public int SleepMs { get; set; } = 16;
+    public int SleepMs { get; set; } = 15;
+    
+    [DefaultValue(100)]
+    public int LongSleepMs { get; set; } = 100;
+    
+    [DefaultValue(5)]
+    public double LongSleepChance { get; set; } = 5;
     
     [DefaultValue(1)]
     public int SpinLoops { get; set; } = 1;

@@ -133,7 +133,6 @@ public static class AppExtensions
     {
         return services
             .AddSingleton<IWaitProvider, WaitProvider>()
-            .AddSingleton<IDateTimeProvider, DefaultDateTimeProvider>()
             .AddSingleton<IBatchDataLoaderFactory, BatchDataLoaderFactory>();
     }
 }

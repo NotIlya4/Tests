@@ -45,7 +45,14 @@ public class SpammerBuilder(
                     }
 
                     var start = Stopwatch.GetTimestamp();
-                    await Task.Delay(batchingOptionsView.SleepMs, ct);
+                    if (Random.Shared.NextDouble() * 100 <= batchingOptionsView.LongSleepChance)
+                    {
+                        await Task.Delay(batchingOptionsView.LongSleepMs, ct);
+                    }
+                    else
+                    {
+                        await Task.Delay(batchingOptionsView.SleepMs, ct);
+                    }
                     metrics.ReportStrategySleep(Stopwatch.GetElapsedTime(start));
                     
                     return x.ToDictionary(x => x, x => x);
@@ -62,7 +69,16 @@ public class SpammerBuilder(
                     }
                     
                     var start = Stopwatch.GetTimestamp();
-                    Thread.Sleep(batchingOptionsView.SleepMs);
+
+                    if (Random.Shared.NextDouble() * 100 <= batchingOptionsView.LongSleepChance)
+                    {
+                        Thread.Sleep(batchingOptionsView.LongSleepMs);
+                    }
+                    else
+                    {
+                        Thread.Sleep(batchingOptionsView.SleepMs);
+                    }
+                    
                     metrics.ReportStrategySleep(Stopwatch.GetElapsedTime(start));
                     
                     return x.ToDictionary(x => x, x => x);
