@@ -19,7 +19,7 @@ nginx:
   address: http://nginx.nginx
 
 kafka:
-  bootstrap_servers: kafka-kafka-bootstrap.strimzi:9092
+  bootstrap_servers: kafka-kafka-bootstrap.strimzi.svc:9092
 
 s3:
   access_key:

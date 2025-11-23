@@ -19,3 +19,34 @@ queryFrontend:
 queryScheduler:
   nodeSelector:
     node.kubernetes.io/role: worker
+global:
+  security:
+    allowInsecureImages: true
+loki:
+  image:
+    repository: bitnamilegacy/grafana-loki
+gateway:
+  image:
+    repository: bitnamilegacy/nginx
+volumePermissions:
+  image:
+    repository: bitnamilegacy/os-shell
+grafanaalloy:
+  image:
+    repository: bitnamilegacy/grafana-alloy
+  alloy:
+    image:
+      repository: bitnamilegacy/grafana-alloy
+  configReloader:
+    image:
+      repository: bitnamilegacy/configmap-reload
+memcachedchunks:
+  image:
+    repository: bitnamilegacy/memcached
+memcachedfrontend:
+  image:
+    repository: bitnamilegacy/memcached
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true

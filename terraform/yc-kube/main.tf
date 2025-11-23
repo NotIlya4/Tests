@@ -49,8 +49,8 @@ module "node_group" {
   size = 1
 
   resources = {
-    cpu = 4
-    memory = 4
+    cpu = 8
+    memory = 16
   }
 
   boot_disk = {
@@ -58,3 +58,29 @@ module "node_group" {
     size = 64
   }
 }
+
+# module "node_group_kafka" {
+#   source = "../modules/yc-kubernetes-node-group"
+
+#   name = "${local.name}-kafka"
+#   cluster_id = module.kubernetes.cluster.id
+
+#   labels = {
+#     "node.kubernetes.io/role" = "kafka"
+#   }
+
+#   subnet_ids = [module.defaults.subnet_a.id, module.defaults.subnet_b.id, module.defaults.subnet_d.id]
+#   zones = [module.defaults.zone_a, module.defaults.zone_b, module.defaults.zone_d]
+
+#   size = 3
+
+#   resources = {
+#     cpu = 4
+#     memory = 16
+#   }
+
+#   boot_disk = {
+#     type = "network-hdd"
+#     size = 64
+#   }
+# }

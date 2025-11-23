@@ -15,16 +15,16 @@ spec:
         type: internal
         tls: false
 
-    logging:
-      type: inline
-      loggers:
-        kafka.root.logger.level: "INFO"
-        log4j.logger.kafka: "INFO"
-        log4j.logger.org.apache.kafka: "INFO"
-        log4j.logger.kafka.request.logger: "TRACE"
-        log4j.logger.kafka.network.Processor: "INFO"
-        log4j.logger.kafka.server.KafkaApis: "INFO"
-        log4j.logger.kafka.network.RequestChannel$: "TRACE"
+    # logging:
+    #   type: inline
+    #   loggers:
+    #     kafka.root.logger.level: "INFO"
+    #     log4j.logger.kafka: "INFO"
+    #     log4j.logger.org.apache.kafka: "INFO"
+    #     log4j.logger.kafka.request.logger: "TRACE"
+    #     log4j.logger.kafka.network.Processor: "INFO"
+    #     log4j.logger.kafka.server.KafkaApis: "INFO"
+    #     log4j.logger.kafka.network.RequestChannel$: "TRACE"
 
     config:
       default.replication.factor: 3
@@ -32,6 +32,10 @@ spec:
       replica.socket.receive.buffer.bytes: -1
       socket.receive.buffer.bytes: -1
       socket.send.buffer.bytes: -1
+      num.partitions: 1
+      num.recovery.threads.per.data.dir: 20
+      log.segment.bytes: 268435456
+      log.index.interval.bytes: 40960
 
     metricsConfig:
       type: jmxPrometheusExporter

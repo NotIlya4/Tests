@@ -1,0 +1,82 @@
+bases:
+- ./helmfile.base2.yaml
+
+repositories:
+- name: kafka-ui
+  url: https://provectus.github.io/kafka-ui-charts
+
+releases:
+- name: myapp1
+  namespace: myapp1
+  chart: ./charts/myapp
+  disableValidationOnInstall: true
+  installed: false
+  needs:
+  - traefik/traefik
+
+- name: myapp2
+  namespace: myapp2
+  chart: ./charts/myapp
+  disableValidationOnInstall: true
+  installed: false
+  needs:
+  - traefik/traefik
+
+- name: myapp3
+  namespace: myapp3
+  chart: ./charts/myapp
+  disableValidationOnInstall: true
+  installed: false
+  needs:
+  - traefik/traefik
+
+- name: strimzi-operator
+  namespace: strimzi
+  chart: oci://quay.io/strimzi-helm/strimzi-kafka-operator
+  disableValidationOnInstall: true
+  version: ~0.42.0
+  values:
+    - nodeSelector:
+        node.kubernetes.io/role: worker
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 1024Mi
+
+- name: kafka
+  namespace: strimzi
+  chart: ./charts/strimzi-kafka
+  disableValidationOnInstall: true
+  installed: true
+  needs:
+  - strimzi/strimzi-operator
+
+- name: kafka-ui
+  namespace: kafka-ui
+  chart: kafka-ui/kafka-ui
+  needs:
+  - traefik/traefik
+  values:
+  - yamlApplicationConfig:
+      kafka:
+        clusters:
+          - name: kafka1
+            bootstrapServers: kafka-kafka-bootstrap.strimzi.svc:9092
+      auth:
+        type: disabled
+      management:
+        health:
+          ldap:
+            enabled: false
+    ingress:
+      enabled: true
+      annotations:
+        traefik.ingress.kubernetes.io/router.entrypoints: web
+      host: kafka-ui.krupcov.ru
+      ingressClassName: traefik
+    env:
+      - name: DYNAMIC_CONFIG_ENABLED
+        value: 'true'
+    nodeSelector:
+      node.kubernetes.io/role: worker

@@ -3,7 +3,7 @@ kind: Ingress
 metadata:
   name: {{ .Release.Name }}
 spec:
-  ingressClassName: nginx
+  ingressClassName: traefik
   rules:
   - host: {{ .Release.Name }}.krupcov.ru
     http:

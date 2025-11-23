@@ -7,7 +7,7 @@ grafana:
     enabled: true
     hosts:
     - grafana.krupcov.ru
-    ingressClassName: nginx
+    ingressClassName: traefik
 
   forceDeployDashboards: true
   defaultDashboardsEnabled: true
@@ -29,7 +29,7 @@ grafana:
   - name: Loki
     type: loki
     access: proxy
-    url: http://loki-grafana-loki-query-frontend.loki:3100
+    url: http://loki-grafana-loki-gateway.loki.svc.cluster.local
 
   dashboards:
     default:

@@ -1,0 +1,61 @@
+repositories:
+- name: prometheus
+  url: https://prometheus-community.github.io/helm-charts
+- name: traefik
+  url: https://traefik.github.io/charts
+- name: jetstack
+  url: https://charts.jetstack.io
+- name: bitnami
+  url: https://charts.bitnami.com/bitnami
+
+releases:
+- name: traefik
+  namespace: traefik
+  chart: traefik/traefik
+  disableValidationOnInstall: true
+  values:
+  - ./values/traefik.yaml
+
+- name: cert-manager
+  namespace: cert-manager
+  chart: jetstack/cert-manager
+  disableValidationOnInstall: true
+  values:
+  - ./values/cert-manager.yaml
+
+- name: loki
+  namespace: loki
+  chart: bitnami/grafana-loki
+  values:
+  - ./values/loki.yaml
+
+- name: monitoring
+  namespace: monitoring
+  chart: prometheus/kube-prometheus-stack
+  disableValidationOnInstall: true
+  needs:
+  - traefik/traefik
+  - loki/loki
+  values:
+  - ./values/monitoring.yaml.gotmpl
+
+- name: nginx
+  namespace: nginx
+  chart: bitnami/nginx
+  installed: true
+  needs:
+  - traefik/traefik
+  values:
+  - ./values/nginx.yaml.gotmpl
+  - global:
+      security:
+        allowInsecureImages: true
+    image:
+      repository: bitnamilegacy/nginx
+
+- name: myapp
+  namespace: myapp
+  chart: ./charts/myapp
+  disableValidationOnInstall: true
+  needs:
+  - traefik/traefik
